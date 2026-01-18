@@ -1,0 +1,52 @@
+Web search results for query: "AutoGraph RAG GraphRAG knowledge graph memory 2025"
+
+Links: [{"title":"AutoGraph-R1: End-to-End Reinforcement Learning for ...","url":"https://arxiv.org/pdf/2510.15339"},{"title":"microsoft/graphrag: A modular graph-based Retrieval ...","url":"https://github.com/microsoft/graphrag"},{"title":"Memory Graph | GraphRAG","url":"https://graphrag.com/reference/knowledge-graph/memory-graph/"},{"title":"RAG Notes 3: Extending RAG through Knowledge Graphs","url":"https://medium.com/@akdemir_bahadir/graphrag-structured-retrieval-and-reasoning-over-knowledge-graphs-d819490bbf4a"},{"title":"Reorganizing Fragmented Knowledge Graphs for Multi- ...","url":"https://aclanthology.org/2025.findings-emnlp.290.pdf"},{"title":"What is GraphRAG: Complete guide [2025]","url":"https://www.meilisearch.com/blog/graph-rag"},{"title":"AriGraph: Learning Knowledge Graph World Models with ...","url":"https://www.ijcai.org/proceedings/2025/0002.pdf"},{"title":"(PDF) AutoGraph-R1: End-to-End Reinforcement Learning ...","url":"https://www.researchgate.net/publication/396692873_AutoGraph-R1_End-to-End_Reinforcement_Learning_for_Knowledge_Graph_Construction"},{"title":"LLM Knowledge Graph Builder — First Release of 2025","url":"https://www.reddit.com/r/Rag/comments/1ipbfxu/llm_knowledge_graph_builder_first_release_of_2025/"},{"title":"Retrieval-Augmented Generation with Graphs (GraphRAG)","url":"https://arxiv.org/abs/2501.00309"}]
+
+## Search Results: AutoGraph RAG GraphRAG Knowledge Graph Memory 2025
+
+Here are the most relevant findings:
+
+### 🔬 Key Research Papers
+
+**1. AutoGraph-R1: End-to-End Reinforcement Learning for Knowledge Graph Construction**
+- **Publication**: October 2025 (arXiv)
+- **Focus**: Uses reinforcement learning to build effective knowledge graphs for Retrieval-Augmented Generation (RAG) systems
+- **Goal**: Advancing question answering (QA) systems through better KG construction
+- Links: [arXiv PDF](https://arxiv.org/pdf/2510.15339) | [ResearchGate](https://www.researchgate.net/publication/396692873_AutoGraph-R1_End-to-End_Reinforcement_Learning_for_Knowledge_Graph_Construction)
+
+**2. AriGraph: Learning Knowledge Graph World Models**
+- **Cited by**: 57 papers
+- **Innovation**: Constructs and updates memory graphs integrating semantic and episodic memories
+- **Paper**: [IJCAI 2025](https://www.ijcai.org/proceedings/2025/0002.pdf)
+
+**3. Retrieval-Augmented Generation with Graphs (GraphRAG)**
+- **Cited by**: 177 papers
+- **Focus**: Enhancing downstream tasks through graph-based information retrieval
+- Link: [arXiv](https://arxiv.org/abs/2501.00309)
+
+### 🛠️ Tools & Frameworks
+
+**Microsoft GraphRAG**
+- **Repository**: [GitHub](https://github.com/microsoft/graphrag)
+- **Description**: Modular graph-based RAG methodology using knowledge graph memory structures to enhance LLM outputs
+
+**Memory Graph Documentation**
+- **Resource**: [GraphRAG Memory Graph Guide](https://graphrag.com/reference/knowledge-graph/memory-graph/)
+- **Purpose**: Capturing conversation information automatically through frameworks or intentional user-stored facts
+
+### 📚 Guides & Resources
+
+1. **[What is GraphRAG: Complete guide (2025)](https://www.meilisearch.com/blog/graph-rag)** - Meilisearch blog, September 2025
+2. **[RAG Notes 3: Extending RAG through Knowledge Graphs](https://medium.com/@akdemir_bahadir/graphrag-structured-retrieval-and-reasoning-over-knowledge-graphs-d819490bbf4a)** - Medium guide (4 months ago)
+3. **[Reorganizing Fragmented Knowledge Graphs for Multi-hop Reasoning](https://aclanthology.org/2025.findings-emnlp.290.pdf)** - ACL Anthology, November 2025
+
+### 💬 Community Discussions
+
+- **[LLM Knowledge Graph Builder — First Release of 2025](https://www.reddit.com/r/Rag/comments/1ipbfxu/llm_knowledge_graph_builder_first_release_of_2025/)** - Reddit discussion on building KG memory systems with 10M+ nodes
+
+---
+
+**Key Takeaway**: 2025 is seeing significant advances in GraphRAG, with AutoGraph-R1 representing the cutting edge in reinforcement learning-based knowledge graph construction for enhanced RAG systems.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

@@ -1,0 +1,48 @@
+Web search results for query: "CrewAI memory agent framework 2025"
+
+I'll search for information about CrewAI memory agent framework 2025.
+
+Links: [{"title":"Crew.ai 智能体Agent代理流程详细解读｜AI 牛马干活模式","url":"https://developer.volcengine.com/articles/7542490918549471273"},{"title":"2025智能体（Agent）框架汇总","url":"https://zhuanlan.zhihu.com/p/1971880079895291462"},{"title":"使用CrewAi和Gemini 1.5构建多智能体系统，掌握未来技术 ...","url":"https://blog.csdn.net/2401_84495872/article/details/145209185"},{"title":"什么是crewAI？","url":"https://www.ibm.com/cn-zh/think/topics/crew-ai"},{"title":"CrewAI 上手攻略：多Agent 自动化处理复杂任务，让AI 像员工一样 ...","url":"https://cloud.tencent.com.cn/developer/article/2593966?policyId=1003"},{"title":"2025年AI Agent Framework选型指南：从技术对比到生产实践","url":"https://www.betteryeah.com/blog/ai-agent-framework-selection-guide-2025-enterprise-comparison"},{"title":"2025年多智能体架构的实战化拐点与选型决策","url":"https://aistudio.baidu.com/blog/detail/739045799330053"},{"title":"[GenAI] Agentic AI 系列· CrewAI基础","url":"https://zhuanlan.zhihu.com/p/1904230744844383815"},{"title":"【强烈推荐】2025搞定这套大模型Agent全套入门教程！从 ...","url":"https://www.bilibili.com/video/BV156WSzkEoi/"},{"title":"智能Agent场景实战指南Day 5：CrewAI团队Agent开发指南","url":"https://blog.csdn.net/qq_qingtian/article/details/149203729"}]
+
+## Search Results: CrewAI Memory Agent Framework 2025
+
+I found several relevant results about CrewAI and its memory agent framework capabilities for 2025. Here's a summary:
+
+### Key Findings:
+
+**1. CrewAI Framework Overview:**
+- Created by João Moura, CrewAI is an open-source multi-agent orchestration framework (Python-based)
+- Coordinates role-playing autonomous AI agents that collaborate as a cohesive "team"
+- Website: https://www.crewai.io
+
+**2. Memory System Components:**
+- **Short-term memory**: Temporary storage for current interactions
+- **Long-term memory**: Persistent storage for learning and historical data
+- Memory is described as "an important component of CrewAI"
+
+**3. 2025 Trends & Context:**
+- Multiple sources reference **2025 as "the Agent Era"** or "Agent AI Year"
+- Google recently released an AI Agent whitepaper
+- Industry experts are positioning 2025 as the pivotal year for agent adoption
+
+**4. Framework Features:**
+- Built on Agents / Crews / Flows architecture
+- Built-in memory and knowledge capabilities
+- Production-ready (面向生产)
+- Supports sequential/hierarchical workflows
+- Suitable for complex tasks like research, writing, and software development
+
+**5. Agent Marketplace Development:**
+- Similar to App Store model, CrewAI is building an Agent Marketplace
+- Enterprises can purchase specialized agents (e.g., "Tax Compliance Agent", "Supply Chain Optimization Agent")
+- Standard interfaces for integration to reduce development time
+
+**6. Enterprise Applications:**
+- Multi-agent collaboration capabilities matured in mid-2024 to early 2025
+- Framework comparison guides available for enterprise selection
+- Standardization of agent development and governance processes
+
+Would you like me to search for more specific information about CrewAI's memory implementation or other aspects of the framework?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

@@ -1,0 +1,44 @@
+Web search results for query: "MemGPT AI memory management system 2025"
+
+Links: [{"title":"MemGPT: Engineering Semantic Memory through Adaptive ...","url":"https://informationmatters.org/2025/10/memgpt-engineering-semantic-memory-through-adaptive-retention-and-context-summarization/"},{"title":"MemGPT快速入门：5分钟搭建你的第一个记忆智能体","url":"https://blog.csdn.net/gitblog_00808/article/details/151458711"},{"title":"A-MEM: Agentic Memory for LLM Agents","url":"https://arxiv.org/pdf/2502.12110"},{"title":"Memory OS of AI Agent","url":"https://aclanthology.org/2025.emnlp-main.1318.pdf"},{"title":"MemGPT: Towards LLMs as Operating Systems","url":"https://www.leoniemonigatti.com/papers/memgpt.html"},{"title":"AI Memory Systems Benchmark: Mem0 vs OpenAI vs ...","url":"https://guptadeepak.com/the-ai-memory-wars-why-one-system-crushed-the-competition-and-its-not-openai/"},{"title":"MemGPT: Engineering Semantic Memory through Adaptive ...","url":"https://papers.ssrn.com/sol3/Delivery.cfm/5631790.pdf?abstractid=5631790&mirid=1"},{"title":"Advancing Agentic Memory: An Overview of ... - Vinithavn","url":"https://vinithavn.medium.com/advancing-agentic-memory-an-overview-of-modern-memory-management-architectures-in-llm-agents-8df87b0da58f"},{"title":"MemGPT MCP Server by Vic563","url":"https://www.pulsemcp.com/servers/vic563-memgpt"},{"title":"The Power of Letta (formerly MemGPT): An Easy-to- ...","url":"https://www.linkedin.com/pulse/power-letta-formerly-memgpt-easy-to-understand-guide-krishna-k-kzlbc"}]
+
+## Search Results: MemGPT AI Memory Management System 2025
+
+I found several relevant results about MemGPT and AI memory management systems from 2025:
+
+### Key Findings:
+
+**1. Recent MemGPT Developments (October 2025)**
+- **"MemGPT: Engineering Semantic Memory through Adaptive Retention and Context Summarization"** - October 16, 2025
+  - Describes MemGPT as empowering LLMs to manage their own memory
+  - Turns conversations into persistent, evolving relationships
+  - Available at: https://informationmatters.org/2025/10/memgpt-engineering-semantic-memory-through-adaptive-retention-and-context-summarization/
+
+**2. Chinese Community Resources (September 2025)**
+- **"MemGPT Quick Start: Build Your First Memory Agent in 5 Minutes"** - September 11, 2025
+  - Describes MemGPT as an open-source agent framework
+  - Designed for memory management in Large Language Models
+  - Uses innovative virtual context management technology
+
+**3. Academic Research (2025)**
+- **"A-MEM: Agentic Memory for LLM Agents"** research paper cites MemGPT, noting its novel virtual context management system inspired by traditional operating systems' memory hierarchies
+- **"Memory OS of AI Agent"** paper proposes MemoryOS, another memory management system for AI agents
+
+**4. Comparative Analysis**
+- **"AI Memory Systems Benchmark"** (August 2025) comparing various AI memory systems including Mem0, OpenAI, and others in production environments
+
+**5. Project Evolution**
+- References to **Letta (formerly MemGPT)**, suggesting the project may have been rebranded or evolved
+- MemGPT MCP Server is available as of November 10, 2025
+
+### Core Concept:
+MemGPT introduces a **hierarchical memory system for LLM agents** inspired by traditional operating system (OS) memory management architectures, featuring:
+- Virtual context management
+- Two tiers of memory
+- Self-editing memory capabilities
+- Persistent conversation relationships
+
+Would you like me to search for more specific information about any particular aspect of MemGPT or related memory management systems?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

@@ -1,0 +1,57 @@
+Web search results for query: "LangGraph memory store long-term 2025"
+
+Links: [{"title":"内存- LangChain 框架","url":"https://langgraph.com.cn/agents/memory/index.html"},{"title":"LangGraph - 04：短期记忆与长期记忆","url":"https://zhuanlan.zhihu.com/p/1977173737783718098"},{"title":"LangGraph 中的记忆 - 概述- LangChain 教程","url":"https://github.langchain.ac.cn/langgraph/concepts/memory/"},{"title":"第8 章：记忆管理","url":"https://jimmysong.io/zh/book/agentic-design-patterns/08-memory-management/"},{"title":"让AI智能体拥有像人类的持久记忆：基于LangGraph的长短期 ...","url":"https://www.53ai.com/news/langchain/2025120845769.html"},{"title":"LangGraph 与Redis：使用内存和持久性构建更智能的AI 代理","url":"https://redis.ac.cn/blog/langgraph-redis-build-smarter-ai-agents-with-memory-persistence/"},{"title":"什么是内存？ - LangGraph - LangChain 框架","url":"https://langgraph.com.cn/concepts/memory.1.html"},{"title":"如何构建具有真正长期记忆功能的生产就绪型Agents","url":"https://milvus.io/zh/blog/langchain-and-milvus-build-production-ready-agents-with-real-long-term-memory.md"},{"title":"LangGraph 的内存/记忆机制总结","url":"https://zhuanlan.zhihu.com/p/1915604388443031303"},{"title":"LangGraph 记忆系统实战：反馈循环+ 动态Prompt 让AI 持续学习","url":"https://cloud.tencent.com/developer/article/2588385"}]
+
+# LangGraph Memory Store & Long-term Memory - 2025 Search Results
+
+## Key Findings
+
+Based on the search results, here's what I found about LangGraph's memory store and long-term memory capabilities in 2025:
+
+### **Memory Architecture Overview**
+
+LangGraph implements a **dual memory system**:
+
+1. **Short-term Memory**: Limited to individual conversation threads
+2. **Long-term Memory**: Cross-session, application-level data storage
+
+### **Long-term Memory Features**
+
+- **Store Implementation**: Long-term memory is implemented through a `Store` component that:
+  - Works independently from Checkpointer
+  - Can be used even without Checkpointer
+  - Allows cross-thread memory sharing
+  - Supports custom namespaces (not just single-thread scoped)
+
+- **Capabilities**:
+  - Stores and retrieves semantic facts
+  - Maintains episodic experiences
+  - Stores updateable rules
+  - Persists across different conversations/sessions
+  - Can be accessed at any time from any thread
+
+### **Integration Patterns**
+
+The search results mention several integration approaches:
+- **Redis Integration**: Combining LangGraph workflows with Redis for powerful memory capabilities
+- **Milvus Integration**: Building production-ready agents with real long-term memory
+- **Custom Storage**: Store allows flexible namespace-based memory organization
+
+### **Recent Developments (2025)**
+
+The search shows several articles published in late 2025 (November-December 2025), indicating active development and documentation around:
+- Memory management best practices
+- Feedback loops and dynamic prompts for continuous AI learning
+- Production-ready implementation patterns
+
+### **Resources**
+
+Key documentation sources include:
+- [LangGraph Memory Documentation](https://langgraph.com.cn/agents/memory/index.html)
+- GitHub LangChain documentation
+- Multiple technical articles and tutorials
+
+Would you like me to search for more specific information about any particular aspect of LangGraph's memory system?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

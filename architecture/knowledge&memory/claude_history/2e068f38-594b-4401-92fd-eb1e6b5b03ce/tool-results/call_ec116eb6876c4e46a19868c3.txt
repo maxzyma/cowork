@@ -1,0 +1,52 @@
+Web search results for query: "RAG retrieval augmented generation open source tools 2025"
+
+Links: [{"title":"10 Best RAG Tools and Platforms: Full Comparison [2025]","url":"https://www.meilisearch.com/blog/rag-tools"},{"title":"2025 Ultimate Guide to Open‑Source RAG Frameworks for ...","url":"https://www.morphik.ai/blog/guide-to-oss-rag-frameworks-for-developers"},{"title":"The 5 best RAG evaluation tools in 2025 - Articles - Braintrust","url":"https://www.braintrust.dev/articles/best-rag-evaluation-tools"},{"title":"The Best Open Source LLMs for RAG in 2025","url":"https://www.siliconflow.com/articles/en/best-open-source-LLMs-for-RAG"},{"title":"Top 10 Open-Source RAG Frameworks: Power Your AI ...","url":"https://medium.com/@techlatest.net/top-10-open-source-rag-frameworks-power-your-ai-with-grounded-answers-c0c253b185c9"},{"title":"[EMNLP2025] \"LightRAG: Simple and Fast Retrieval- ...","url":"https://github.com/HKUDS/LightRAG"},{"title":"7 Best Open-Source RAG Tools for Your Enterprise","url":"https://www.cake.ai/blog/best-open-source-rag-tools"},{"title":"Best 9 RAG Evaluation Tools of 2025","url":"https://www.deepchecks.com/best-rag-evaluation-tools/"},{"title":"15 Best Open-Source RAG Frameworks in 2026","url":"https://www.firecrawl.dev/blog/best-open-source-rag-frameworks"},{"title":"Best RAG Frameworks 2025: Complete Enterprise and ...","url":"https://latenode.com/blog/ai/frameworks-tech/best-rag-frameworks-2025-complete-enterprise-and-open-source-comparison"}]
+
+Here are the search results for open-source RAG tools and frameworks in 2025:
+
+## **Top Resources Found:**
+
+### 📊 **Comprehensive Guides & Comparisons:**
+
+1. **[10 Best RAG Tools and Platforms: Full Comparison [2025]](https://www.meilisearch.com/blog/rag-tools)** - Meilisearch
+   - Features, pricing, pros/cons, and integrations for top RAG tools
+
+2. **[2025 Ultimate Guide to Open-Source RAG Frameworks for Developers](https://www.morphik.ai/blog/guide-to-oss-rag-frameworks-for-developers)** - Morphik AI
+   - Developer-focused guide covering retrieval-augmented generation fundamentals and implementation
+
+3. **[Top 10 Open-Source RAG Frameworks](https://medium.com/@techlatest.net/top-10-open-source-rag-frameworks-power-your-ai-with-grounded-answers-c0c253b185c9)** - Medium
+   - 2025 releases with improved retrieval accuracy through optimized chunking and hybrid retrieval
+   - Data connectors for Google Drive, Notion, Slack, etc.
+
+### 🔬 **Evaluation Tools:**
+
+4. **[The 5 Best RAG Evaluation Tools in 2025](https://www.braintrust.dev/articles/best-rag-evaluation-tools)** - Braintrust
+   - Comparison of RAG evaluation platforms across production integration and developer experience
+
+5. **[Best 9 RAG Evaluation Tools of 2025](https://www.deepchecks.com/best-rag-evaluation-tools/)** - Deepchecks
+   - Features RAGAS (Retrieval-Augmented Generation Assessment Suite)
+
+### 🛠️ **Specific Frameworks & Tools:**
+
+6. **[LightRAG](https://github.com/HKUDS/LightRAG)** - GitHub (EMNLP 2025)
+   - Simple and fast retrieval with Web UI and API support
+   - Features document indexing and knowledge graph exploration
+
+### 🏢 **Enterprise Solutions:**
+
+7. **[7 Best Open-Source RAG Tools for Your Enterprise](https://www.cake.ai/blog/best-open-source-rag-tools)** - Cake.ai
+   - Enterprise-focused tools for smarter AI and improved data accuracy
+
+### 📈 **LLM-Specific Resources:**
+
+8. **[The Best Open Source LLMs for RAG in 2025](https://www.siliconflow.com/articles/en/best-open-source-LLMs-for-RAG)** - Siliconflow
+   - Top recommendations: DeepSeek-R1, Qwen/Qwen3-30B-A3B-Instruct-2507, and openai/gpt-oss-120b
+
+### 🔥 **Industry Trends:**
+
+According to [Latenode's analysis](https://latenode.com/blog/ai/frameworks-tech/best-rag-frameworks-2025-complete-enterprise-and-open-source-comparison), RAG framework adoption has increased by **400% in 2025**, transforming how businesses handle document processing.
+
+Would you like me to search for more specific information about any particular RAG framework or aspect (e.g., implementation tutorials, benchmarking, or specific use cases)?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

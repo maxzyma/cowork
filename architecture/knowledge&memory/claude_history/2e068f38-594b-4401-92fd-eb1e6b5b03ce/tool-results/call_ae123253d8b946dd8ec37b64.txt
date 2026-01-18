@@ -1,0 +1,7 @@
+omnimem/docs/DESIGN.md
+omnimem/docs/SEARCH.md
+omnimem/docs/SEARCH_FILTERS.md
+omnimem/docs/STORAGE.md
+omnimem/docs/STORAGE_ELASTICSEARCH.md
+omnimem/docs/STORAGE_MONGODB.md
+omnimem/docs/STORAGE_POSTGRESQL.md

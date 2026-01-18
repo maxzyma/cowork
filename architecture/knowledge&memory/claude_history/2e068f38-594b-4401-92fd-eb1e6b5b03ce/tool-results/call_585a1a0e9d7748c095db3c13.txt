@@ -1,0 +1,22 @@
+Web search results for query: "Haystack RAG framework memory 2025"
+
+I'll perform a web search for "Haystack RAG framework memory 2025" for you.
+
+Links: [{}]
+
+I encountered an error when trying to perform the web search. The API returned a 429 error indicating:
+
+**Error Message:** "您当前使用该API的并发数过高，请降低并发，或联系客服增加限额。"
+**Translation:** "Your current concurrent usage of this API is too high. Please reduce concurrency or contact customer service to increase the quota."
+
+This error occurs when there are too many simultaneous requests being made to the search API. 
+
+**Suggestions:**
+1. Try the search again in a moment
+2. If you're making multiple searches, try spacing them out
+3. If you need to make frequent searches, you may need to contact the service provider to increase your API quota
+
+Would you like me to try the search again, or is there anything else I can help you with?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

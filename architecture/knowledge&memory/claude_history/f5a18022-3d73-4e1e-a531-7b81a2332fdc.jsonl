@@ -1,0 +1,9 @@
+{"type":"summary","summary":"Claude Code Memory Project Migration","leafUuid":"c01d584c-ce6e-4f56-bc96-ce466b8f91d8"}
+{"type":"summary","summary":"Memory Project Migration to New Project","leafUuid":"a79ddf72-4f3c-45c1-8552-2925d0bc1e10"}
+{"type":"summary","summary":"Project Migration: Memory to Claude Code","leafUuid":"945578ab-9f96-4a3d-b9b2-da6810159e52"}
+{"type":"summary","summary":"Claude Code Config Migration: Memory to Knowledge","leafUuid":"892aef4d-eb98-4baa-9103-6b59b88977c8"}
+{"type":"summary","summary":"Claude Code Migration: Memory to Knowledge Project","leafUuid":"1d0d945a-5637-4db8-be44-31239204d7fc"}
+{"type":"summary","summary":"Claude Code Config Migration Failed","leafUuid":"35010bbb-d902-45ec-9407-5436e6d95a5d"}
+{"type":"file-history-snapshot","messageId":"28d9bf8e-8df7-4d1d-a0ac-530db49facf2","snapshot":{"messageId":"28d9bf8e-8df7-4d1d-a0ac-530db49facf2","trackedFileBackups":{},"timestamp":"2026-01-12T07:36:43.844Z"},"isSnapshotUpdate":false}
+{"type":"file-history-snapshot","messageId":"b1943d1b-6638-476a-8c25-1ca63c7cd3a0","snapshot":{"messageId":"b1943d1b-6638-476a-8c25-1ca63c7cd3a0","trackedFileBackups":{"migrate_claude_config.sh":{"backupFileName":null,"version":1,"backupTime":"2026-01-12T10:22:21.021Z"}},"timestamp":"2026-01-12T10:22:07.680Z"},"isSnapshotUpdate":false}
+{"type":"file-history-snapshot","messageId":"882be0b4-4167-4129-b390-f24476e57099","snapshot":{"messageId":"882be0b4-4167-4129-b390-f24476e57099","trackedFileBackups":{"migrate_claude_config.sh":{"backupFileName":"b03be0ddbbf18f8e@v2","version":2,"backupTime":"2026-01-12T10:28:31.188Z"}},"timestamp":"2026-01-12T10:28:31.174Z"},"isSnapshotUpdate":false}

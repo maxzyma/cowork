@@ -1,0 +1,738 @@
+     1→# OmniMem 存储层设计
+     2→
+     3→> **文档说明**
+     4→> 本文档作为存储层的总览，描述了逻辑模型到物理存储模型的映射关系，以及存储协调层（Coordinator）如何管理多个存储后端的数据同步。
+     5→>
+     6→> **关联文档**：
+     7→> - [DESIGN.md](DESIGN.md): 了解存储层在整体架构中的位置。
+     8→> - [STORAGE_MONGODB.md](STORAGE_MONGODB.md): 主存储（Source of Truth）的具体实现。
+     9→> - [STORAGE_POSTGRESQL.md](STORAGE_POSTGRESQL.md): 向量索引的具体实现。
+    10→> - [STORAGE_ELASTICSEARCH.md](STORAGE_ELASTICSEARCH.md): 综合索引的具体实现。
+    11→
+    12→本文档描述 OmniMem 的存储架构设计，包括逻辑模型与存储模型的映射关系、多存储后端协调机制等。
+    13→
+    14→## 1. 存储架构总览
+    15→
+    16→### 1.1 三层存储架构
+    17→
+    18→```
+    19→┌─────────────────────────────────────────────────────────────────┐
+    20→│                      Memory (逻辑模型)                           │
+    21→│                   业务层操作的统一数据结构                         │
+    22→└───────────────────────────┬─────────────────────────────────────┘
+    23→                            │
+    24→                            ▼
+    25→┌─────────────────────────────────────────────────────────────────┐
+    26→│                    Storage Coordinator                           │
+    27→│                      存储协调层                                   │
+    28→│         负责逻辑模型到各存储模型的转换和同步                        │
+    29→└───────┬─────────────────────┬─────────────────────┬─────────────┘
+    30→        │                     │                     │
+    31→        ▼                     ▼                     ▼
+    32→┌───────────────┐     ┌───────────────┐     ┌───────────────┐
+    33→│   MongoDB     │     │  PostgreSQL   │     │ Elasticsearch │
+    34→│   主存储       │     │   向量索引     │     │  综合索引      │
+    35→│               │     │               │     │               │
+    36→│ • 完整数据     │     │ • Embedding   │     │ • 全文检索     │
+    37→│ • 条件过滤     │     │ • 相似度召回   │     │ • 结构化过滤   │
+    38→│ • 历史版本     │     │ • Scope过滤   │     │ • Scope过滤   │
+    39→└───────────────┘     └───────────────┘     └───────────────┘
+    40→     1 : 1                 1 : N                 1 : 1
+    41→   一条Memory            一条Memory           一条Memory
+    42→   一个文档              多条向量记录          一个文档
+    43→```
+    44→
+    45→### 1.2 存储职责分工
+    46→
+    47→| 存储后端 | 职责 | 数据完整性 | 映射关系 |
+    48→|----------|------|-----------|----------|
+    49→| **MongoDB** | 主存储 + 基础过滤 | 完整数据 | 1 Memory : 1 Document |
+    50→| **PostgreSQL** | 向量召回 + Scope过滤 | 仅向量数据 | 1 Memory : N Records |
+    51→| **Elasticsearch** | 全文检索 + 结构化过滤 | 索引数据 | 1 Memory : 1 Document |
+    52→
+    53→### 1.3 核心设计原则
+    54→
+    55→1. **MongoDB 是唯一数据源**：完整 Memory 数据只存储在 MongoDB
+    56→2. **PostgreSQL 是向量索引**：存储 embedding，支持语义相似度召回
+    57→3. **Elasticsearch 是综合索引**：存储 text、data、metadata，支持全文检索和结构化过滤
+    58→4. **检索流程**：索引召回 memory_ids → MongoDB 获取完整数据
+    59→
+    60→---
+    61→
+    62→## 2. 逻辑模型与存储模型映射
+    63→
+    64→### 2.1 Memory 逻辑模型体系
+    65→
+    66→OmniMem 的核心数据结构围绕 `Memory` 逻辑模型展开，该模型作为业务层操作的统一接口，通过组合 `Content`、`SourceReference` 和 `IndexHint` 等组件，灵活适应不同的存储和检索需求。
+    67→
+    68→#### 2.1.1 Memory 主模型
+    69→
+    70→`Memory` 是数据流转的基本单元，包含标识、版本、隔离域、内容及元数据等核心要素。
+    71→
+    72→```python
+    73→@dataclass
+    74→class Memory:
+    75→    # ===== 标识与版本 =====
+    76→    memory_id: str
+    77→    record_id: str
+    78→    version: int                  # int64：推荐用 Unix epoch 纳秒 time.time_ns()
+    79→    is_latest: bool
+    80→    change_type: ChangeType
+    81→    prev_record_id: str | None
+    82→    
+    83→    # ===== 隔离域 =====
+    84→    scope: Scope
+    85→    
+    86→    # ===== 核心内容 =====
+    87→    content: Content              # 统一内容容器（文本 + 数据 + Schema）
+    88→    metadata: dict[str, Any] | None  # 用户自定义元数据
+    89→    type: MemoryType
+    90→    
+    91→    # ===== 关联与索引 =====
+    92→    sources: list[SourceReference] | None = None  # 来源追踪
+    93→    index_hint: IndexHint | None = None           # 索引策略配置
+    94→    
+    95→    # ===== 时间戳 =====
+    96→    created_time: datetime
+    97→    event_time: datetime | None = None
+    98→    valid_time_from: datetime | None = None
+    99→    valid_time_to: datetime | None = None
+   100→```
+   101→
+   102→#### 2.1.2 Content 内容组件
+   103→
+   104→`Content` 组件负责承载实际的业务数据，支持非结构化文本与结构化数据的混合存储。
+   105→
+   106→```python
+   107→@dataclass
+   108→class Content:
+   109→    text: str | None = None        # 主文本内容（用于全文检索 + 默认向量检索）
+   110→    data: dict | None = None       # 结构化数据（用于字段过滤 + 指定字段向量化）
+   111→    schema: dict | None = None     # JSON Schema（用于数据验证与 TypeAdapter 恢复）
+   112→```
+   113→
+   114→#### 2.1.3 SourceReference 来源引用
+   115→
+   116→用于构建记忆之间的关联网络（如父子关系、引用关系），支持追溯数据来源。
+   117→
+   118→```python
+   119→@dataclass
+   120→class SourceReference:
+   121→    """关联来源引用"""
+   122→    memory_id: str                          # 关联的记忆点 ID
+   123→    record_id: str                          # 关联的记录 ID
+   124→    reason: str | None = None               # 关联原因描述（仅存储，不参与检索）
+   125→```
+   126→
+   127→#### 2.1.4 IndexHint 索引控制
+   128→
+   129→`IndexHint` 允许开发者精细控制 `data` 和 `metadata` 中的字段如何参与向量化和全文检索。
+   130→
+   131→```python
+   132→@dataclass
+   133→class IndexHint:
+   134→    """索引配置：控制 data/metadata 字段如何参与检索"""
+   135→    
+   136→    # ===== 向量化配置 =====
+   137→    vector_concat_fields: list[str] | None = None
+   138→    # 策略：拼接到主文本（content.text）一起向量化
+   139→    # 结果：生成 field_name="text" 的单一向量记录
+   140→    # 场景：增加主文本的语义丰富度（如将标题、标签加入主向量）
+   141→    
+   142→    vector_fields: list[str] | None = None
+   143→    # 策略：字段独立向量化
+   144→    # 结果：生成 field_name="data.xxx" 或 "metadata.xxx" 的独立向量记录
+   145→    # 场景：多视角召回（如单独对"摘要"或"评论"进行向量化）
+   146→    
+   147→    # ===== 全文检索配置 =====
+   148→    fulltext_fields: list[str] | None = None
+   149→    # 策略：指定字段在 ES 中使用 text 类型（而非 keyword）
+   150→    # 场景：对结构化字段进行模糊搜索或全文匹配
+   151→    
+   152→    # ===== 拼接配置 =====
+   153→    separator: str = "\n"
+   154→    # 策略：当字段值为列表时（list[str]），使用此分隔符拼接为字符串
+   155→```
+   156→
+   157→### 2.2 字段访问与路径语法
+   158→
+   159→在 `IndexHint` 配置中，支持使用点号路径（Dot Notation）访问嵌套字段，并支持数组遍历语法。
+   160→
+   161→| 路径格式 | 说明 | 示例 | 转换结果示例 |
+   162→|----------|------|------|--------------|
+   163→| `data.field` | 直接访问对象字段 | `data.title` | `"文档标题"` |
+   164→| `data.field` (list[str]) | 列表自动拼接 | `data.tags` | `"ai\nml"` |
+   165→| `data.array[*].field` | **数组遍历**：提取数组中每个对象的指定字段 | `data.items[*].name` | `"概念A\n概念B"` |
+   166→| `metadata.field` | 访问元数据字段 | `metadata.author` | `"Alice"` |
+   167→
+   168→**注意**：`[*]` 语法专门用于处理 `list[object]` 类型的嵌套数组结构。
+   169→
+   170→### 2.3 存储映射机制
+   171→
+   172→OmniMem 采用 "One Logic, Multi Storage" 的策略，将逻辑模型分发到不同的存储后端以发挥各自优势。
+   173→
+   174→#### 2.3.1 映射概览
+   175→
+   176→```
+   177→Memory (逻辑模型)
+   178→│
+   179→├─► MongoDB (1:1) ──────────────► [完整性]
+   180→│   • 存储完整 Memory 结构         • 唯一数据源
+   181→│   • 包含所有历史版本             • 基础条件过滤
+   182→│
+   183→├─► PostgreSQL (1:N) ───────────► [语义召回]
+   184→│   • 仅存储最新版本               • 向量检索 (pgvector)
+   185→│   • 一条 Memory 对应 N 条向量     • Scope 隔离
+   186→│     (1 text + M custom fields)
+   187→│
+   188→└─► Elasticsearch (1:1) ────────► [综合检索]
+   189→    • 仅存储最新版本               • 全文检索 (BM25)
+   190→    • 扁平化索引 text/data/meta   • 复杂结构化过滤
+   191→```
+   192→
+   193→#### 2.3.2 存储层详细映射表
+   194→
+   195→| 逻辑组件 | MongoDB (Document) | PostgreSQL (Records) | Elasticsearch (Document) |
+   196→|----------|--------------------|----------------------|--------------------------|
+   197→| **Identity** | `memory_id`, `record_id` | `memory_id` | `_id` (=memory_id) |
+   198→| **Content.text** | `text` | `field_name='text'` 的向量 | `text` (text类型) |
+   199→| **Content.data** | `data` (完整JSON) | `data` (JSONB) | `data.*` (带类型后缀) |
+   200→| **Metadata** | `metadata` (完整JSON) | `metadata` (JSONB) | `metadata.*` (带类型后缀) |
+   201→| **Sources** | `sources` (完整列表) | `source_memory_ids` (数组) | `sources` (Nested对象) |
+   202→| **IndexHint** | 仅存储配置本身 | **决定生成多少条向量记录** | **决定哪些字段为 text 类型** |
+   203→
+   204→#### 2.3.3 字段类型后缀与 IndexHint 配合
+   205→
+   206→为了支持在同一存储结构中存储用户自定义的 `data` 和 `metadata`，OmniMem 引入了**类型后缀**机制。这不仅避免了 Elasticsearch 中的 Mapping 冲突，也统一了 PostgreSQL 中 JSONB 的查询模式。
+   207→
+   208→| 原始类型 (Python) | PostgreSQL 后缀 (JSONB) | Elasticsearch 后缀 (Mapping) | 说明 |
+   209→|-------------------|-------------------------|------------------------------|------|
+   210→| `int` | `__int` | `__long` | 整数 |
+   211→| `float` | `__float` | `__double` | 浮点数 |
+   212→| `bool` | `__bool` | `__bool` | 布尔值 |
+   213→| `str` | `__str` | `__keyword` (默认) / `__text` | 字符串 |
+   214→| `datetime` | (存为 ISO 字符串) | `__date` | 时间 |
+   215→| `dict` | `__obj` | `__object` | 嵌套对象 |
+   216→| `list[dict]` | `__nested` | `__nested` | 对象数组 |
+   217→
+   218→**IndexHint 的作用**：
+   219→`IndexHint` 主要通过 `fulltext_fields` 配置影响 Elasticsearch 的后缀生成：
+   220→
+   221→- **默认行为**：所有字符串字段默认使用 `__keyword` 后缀，仅支持精确匹配。
+   222→- **全文检索**：若字段路径出现在 `index_hint.fulltext_fields` 中，该字段在 Elasticsearch 中将使用 `__text` 后缀，支持全文检索。
+   223→- **PostgreSQL**：不受 `fulltext_fields` 影响，字符串统一使用 `__str` 后缀。
+   224→
+   225→### 2.3.4 Memory Type 字段映射
+   226→
+   227→`Memory.type` 字段在不同存储引擎中使用不同的字段名：
+   228→
+   229→| 逻辑字段 | MongoDB 字段 | PostgreSQL 字段 | Elasticsearch 字段 | 说明 |
+   230→|----------|--------------|-----------------|--------------------|------|
+   231→| `type` | `type` | `memory_type` | `memory_type` | 记忆类型 (Knowledge, Chat, etc.) |
+   232→
+   233→### 2.4 综合配置示例
+   234→
+   235→以下示例展示了一个包含复杂嵌套数据的 Memory 对象，及其如何通过 IndexHint 映射到存储层。
+   236→
+   237→#### 2.4.1 定义 Memory 对象
+   238→
+   239→```python
+   240→memory = Memory(
+   241→    content=Content(
+   242→        text="这是一篇关于机器学习的文章...",
+   243→        data={
+   244→            "title": "机器学习入门",
+   245→            "summary": "本文介绍了机器学习的基础概念",
+   246→            "tags": ["ai", "ml", "python"],
+   247→            "items": [
+   248→                {
+   249→                    "name": "概念A", 
+   250→                    "desc": "描述A",
+   251→                    "tags": ["tag1", "tag2"]  # nested 中的 list[str]
+   252→                },
+   253→                {
+   254→                    "name": "概念B", 
+   255→                    "desc": "描述B",
+   256→                    "tags": ["tag3"]
+   257→                }
+   258→            ]
+   259→        }
+   260→    ),
+   261→    metadata={
+   262→        "author": "Alice",
+   263→        "keywords": ["机器学习", "深度学习"],  # metadata 中的 list[str]
+   264→        "notes": "这是作者的备注信息"
+   265→    },
+   266→    sources=[
+   267→        SourceReference(
+   268→            memory_id="mem_000",
+   269→            record_id="rec_000_003",
+   270→            reason="这是父级记忆，包含了上下文信息"
+   271→        ),
+   272→        SourceReference(
+   273→            memory_id="mem_002",
+   274→            record_id="rec_002_001",
+   275→            reason=None  # reason 可选
+   276→        )
+   277→    ],
+   278→    index_hint=IndexHint(
+   279→        vector_concat_fields=[
+   280→            "data.title",                    # str -> "机器学习入门"
+   281→            "data.tags",                     # list[str] -> "ai\nml\npython"
+   282→            "data.items[*].name",            # nested 下钻 -> "概念A\n概念B"
+   283→            "metadata.keywords",             # metadata list[str] -> "机器学习\n深度学习"
+   284→        ],
+   285→        vector_fields=[
+   286→            "data.summary",
+   287→            "data.items[*].desc",            # nested 下钻 -> "描述A\n描述B"
+   288→            "metadata.notes",                 # metadata str -> "这是作者的备注信息"
+   289→            "data.items[*].tags",             # nested 下钻到 list[str] -> "tag1\ntag2\ntag3"
+   290→        ],
+   291→        fulltext_fields=[
+   292→            "data.summary",                  # data 字段全文检索
+   293→            "metadata.notes",                 # metadata 字段全文检索
+   294→            "data.items[*].desc",             # nested 下钻字段全文检索
+   295→        ],
+   296→        separator="\n"                       # 列表拼接分隔符（默认）
+   297→    )
+   298→)
+   299→```
+   300→
+   301→#### 2.4.2 存储层生成结果
+   302→
+   303→**1. PostgreSQL 向量记录 (生成 5 条记录)**
+   304→
+   305→| memory_id | field_name | 向量化内容 (Input Text) | 说明 |
+   306→|-----------|------------|------------------------|------|
+   307→| mem_001 | `text` | `"机器学习入门\n\nai\nml\npython\n\n概念A\n概念B\n\n机器学习\n深度学习\n\n这是一篇关于机器学习的文章..."` | 主文本 + concat字段 |
+   308→| mem_001 | `data.summary` | `"本文介绍了机器学习的基础概念"` | 独立向量字段 |
+   309→| mem_001 | `data.items[*].desc` | `"描述A\n描述B"` | 独立向量字段 (Nested聚合) |
+   310→| mem_001 | `metadata.notes` | `"这是作者的备注信息"` | 独立向量字段 |
+   311→| mem_001 | `data.items[*].tags` | `"tag1\ntag2\ntag3"` | 独立向量字段 (Nested聚合) |
+   312→
+   313→**2. Elasticsearch 文档结构**
+   314→
+   315→```json
+   316→{
+   317→  "_id": "mem_001",
+   318→  "text": "这是一篇关于机器学习的文章...",
+   319→  "data": {
+   320→    "title__keyword": "机器学习入门",
+   321→    "summary__text": "本文介绍了机器学习的基础概念",       // fulltext_fields 指定
+   322→    "tags__keyword": ["ai", "ml", "python"],
+   323→    "items__nested": [
+   324→      {
+   325→        "name__keyword": "概念A",
+   326→        "desc__text": "描述A",                 // fulltext_fields 指定
+   327→        "tags__keyword": ["tag1", "tag2"]
+   328→      },
+   329→      {
+   330→        "name__keyword": "概念B",
+   331→        "desc__text": "描述B",                 // fulltext_fields 指定
+   332→        "tags__keyword": ["tag3"]
+   333→      }
+   334→    ]
+   335→  },
+   336→  "metadata": {
+   337→    "author__keyword": "Alice",
+   338→    "keywords__keyword": ["机器学习", "深度学习"],
+   339→    "notes__text": "这是作者的备注信息"           // fulltext_fields 指定
+   340→  },
+   341→  "sources__nested": [
+   342→    {
+   343→      "memory_id": "mem_000",
+   344→      "record_id": "rec_000_003"
+   345→    },
+   346→    {
+   347→      "memory_id": "mem_002",
+   348→      "record_id": "rec_002_001"
+   349→    }
+   350→  ]
+   351→}
+   352→```
+   353→
+   354→---
+   355→
+   356→## 3. 版本管理策略
+   357→
+   358→### 3.1 设计背景
+   359→
+   360→Memory 采用不可变记录设计，一个 `memory_id` 可能有多个版本（多个 `record_id`）。
+   361→
+   362→### 3.2 各存储层的版本处理
+   363→
+   364→| 存储层 | 存储内容 | 版本控制 |
+   365→|--------|----------|----------|
+   366→| **MongoDB** | 所有版本 | 通过 `is_latest` 字段区分 |
+   367→| **PostgreSQL** | 仅最新版本 | 使用 UPSERT 覆盖旧记录 |
+   368→| **Elasticsearch** | 仅最新版本 | 使用 `memory_id` 作为 `_id` 覆盖 |
+   369→
+   370→### 3.3 更新策略
+   371→
+   372→**更新 Memory 时：**
+   373→
+   374→```
+   375→1. MongoDB：
+   376→   - 原记录：UPDATE SET is_latest = false
+   377→   - 新记录：INSERT with is_latest = true
+   378→   - 保留完整历史版本
+   379→
+   380→2. PostgreSQL：
+   381→   - 使用 UPSERT，(memory_id, field_name) 为唯一键
+   382→   - 直接覆盖旧记录，只保留最新版本
+   383→
+   384→3. Elasticsearch：
+   385→   - 使用 memory_id 作为 _id
+   386→   - 直接覆盖旧文档，只保留最新版本
+   387→```
+   388→
+   389→### 3.4 历史版本查询
+   390→
+   391→- **MongoDB**：支持通过 `is_latest` 字段查询历史版本
+   392→- **PostgreSQL/ES**：不支持历史版本查询（只索引最新版本）
+   393→
+   394→如需查询历史版本，请直接查询 MongoDB。
+   395→
+   396→---
+   397→
+   398→## 4. Scope 过滤策略
+   399→
+   400→Scope 是 OmniMem 的多维正交隔离域，包含 6 个预定义维度和自定义 namespace。
+   401→
+   402→### 4.1 Scope 在各存储层的存储
+   403→
+   404→由于 Scope 是正交的多维结构，各存储层采用不同的存储策略：
+   405→
+   406→| 存储层 | 存储方式 | 过滤方式 |
+   407→|--------|----------|----------|
+   408→| **MongoDB** | 扁平化字段 `scope_tenant_id` 等 + `scope_tags` 数组 + 嵌套 `scope_namespace` | 字段过滤 |
+   409→| **PostgreSQL** | 独立列 + `scope_tags` 数组 | 列过滤 + GIN 索引 |
+   410→| **Elasticsearch** | 独立字段 + `scope_tags` 数组 | Term 过滤 |
+   411→
+   412→### 4.2 ScopeFilter 过滤器
+   413→
+   414→统一的 Scope 过滤器定义，支持精确匹配和多值匹配：
+   415→
+   416→```python
+   417→@dataclass
+   418→class ScopeFilter:
+   419→    """
+   420→    Scope 检索过滤器
+   421→    
+   422→    支持精确匹配和多值匹配（OR 语义）
+   423→    """
+   424→    
+   425→    # 预定义维度过滤（支持单值或多值）
+   426→    tenant_id: str | list[str] | None = None
+   427→    user_id: str | list[str] | None = None
+   428→    app_id: str | list[str] | None = None
+   429→    group_id: str | list[str] | None = None
+   430→    agent_id: str | list[str] | None = None
+   431→    run_id: str | list[str] | None = None
+   432→    
+   433→    # 自定义命名空间过滤
+   434→    namespace: dict[str, str | list[str]] | None = None
+   435→```
+   436→
+   437→### 4.3 Scope 过滤示例
+   438→
+   439→```python
+   440→# 示例1：精确匹配 tenant + user
+   441→filter = ScopeFilter(tenant_id="t1", user_id="u1")
+   442→
+   443→# 示例2：多值匹配（OR 语义）
+   444→filter = ScopeFilter(tenant_id="t1", agent_id=["agent1", "agent2", "agent3"])
+   445→
+   446→# 示例3：自定义命名空间过滤
+   447→filter = ScopeFilter(
+   448→    tenant_id="t1",
+   449→    namespace={"project": "proj_001", "env": ["prod", "staging"]}
+   450→)
+   451→```
+   452→
+   453→### 4.4 scope_tags 生成
+   454→
+   455→用于 PostgreSQL 和 Elasticsearch 索引的灵活过滤：
+   456→
+   457→```python
+   458→def to_scope_tags(scope: Scope) -> list[str]:
+   459→    """
+   460→    生成 scope_tags 列表，用于索引中的灵活过滤
+   461→    主要用于 namespace 的多维度过滤
+   462→    """
+   463→    tags = []
+   464→    
+   465→    # 自定义 namespace
+   466→    if scope.namespace:
+   467→        for key, value in scope.namespace.items():
+   468→            tags.append(f"ns.{key}:{value}")
+   469→    
+   470→    return tags
+   471→```
+   472→
+   473→### 4.5 各存储层 Scope 过滤详情
+   474→
+   475→各存储层有各自的过滤条件生成方法，详见：
+   476→
+   477→- [STORAGE_MONGODB.md](./STORAGE_MONGODB.md) - 第 4.3 节 Scope 过滤
+   478→- [STORAGE_POSTGRESQL.md](./STORAGE_POSTGRESQL.md) - 第 4.2~4.3 节 Scope 过滤
+   479→- [STORAGE_ELASTICSEARCH.md](./STORAGE_ELASTICSEARCH.md) - 第 4.2~4.4 节 Scope 过滤
+   480→
+   481→---
+   482→
+   483→## 5. 同步机制
+   484→
+   485→### 5.1 同步流程
+   486→
+   487→```
+   488→┌─────────────────────────────────────────────────────────────────┐
+   489→│                      Memory 操作                                 │
+   490→└───────────────────────────┬─────────────────────────────────────┘
+   491→                            │
+   492→            ┌───────────────┼───────────────┐
+   493→            │               │               │
+   494→            ▼               ▼               ▼
+   495→        ┌───────┐       ┌───────┐       ┌───────┐
+   496→        │  ADD  │       │UPDATE │       │DELETE │
+   497→        └───┬───┘       └───┬───┘       └───┬───┘
+   498→            │               │               │
+   499→            ▼               ▼               ▼
+   500→┌─────────────────────────────────────────────────────────────────┐
+   501→│                    Storage Coordinator                           │
+   502→├─────────────────────────────────────────────────────────────────┤
+   503→│                                                                  │
+   504→│  ADD:                                                            │
+   505→│  1. MongoDB: INSERT 完整文档                                     │
+   506→│  2. PostgreSQL: INSERT 多条向量记录（每个字段一条）               │
+   507→│  3. Elasticsearch: INDEX 1 个文档（_id = memory_id）              │
+   508→│                                                                  │
+   509→│  UPDATE:                                                         │
+   510→│  1. MongoDB: UPDATE 旧记录 is_latest=false, INSERT 新记录        │
+   511→│  2. PostgreSQL: UPSERT 覆盖（memory_id + field_name 唯一）       │
+   512→│  3. Elasticsearch: UPSERT 覆盖（_id = memory_id）                 │
+   513→│                                                                  │
+   514→│  DELETE:                                                         │
+   515→│  1. MongoDB: DELETE WHERE memory_id = ?                          │
+   516→│  2. PostgreSQL: DELETE WHERE memory_id = ?                       │
+   517→│  3. Elasticsearch: DELETE WHERE memory_id = ?                    │
+   518→│                                                                  │
+   519→└─────────────────────────────────────────────────────────────────┘
+   520→```
+   521→
+   522→### 5.2 同步实现
+   523→
+   524→```python
+   525→class StorageCoordinator:
+   526→    """存储协调器"""
+   527→    
+   528→    def __init__(
+   529→        self,
+   530→        mongo_repo: MongoRepository,
+   531→        pg_index: PostgreSQLVectorIndex,
+   532→        es_index: ElasticsearchKeywordIndex,
+   533→        embedding_service: EmbeddingService,
+   534→    ):
+   535→        self.mongo = mongo_repo
+   536→        self.pg = pg_index
+   537→        self.es = es_index
+   538→        self.embedding = embedding_service
+   539→    
+   540→    async def add_memory(self, memory: Memory) -> None:
+   541→        """添加记忆"""
+   542→        # 1. MongoDB
+   543→        mongo_doc = MongoMemoryDocument.from_memory(memory)
+   544→        await self.mongo.insert(mongo_doc)
+   545→        
+   546→        # 2. PostgreSQL 向量索引
+   547→        vector_records = await self._build_vector_records(memory)
+   548→        await self.pg.batch_insert(vector_records)
+   549→        
+   550→        # 3. Elasticsearch 关键词索引
+   551→        keyword_docs = self._build_keyword_docs(memory)
+   552→        await self.es.batch_index(keyword_docs)
+   553→    
+   554→    async def update_memory(self, memory: Memory) -> None:
+   555→        """更新记忆（创建新版本）"""
+   556→        # 1. MongoDB：标记旧版本 + 插入新版本
+   557→        await self.mongo.mark_not_latest(memory.memory_id)
+   558→        mongo_doc = MongoMemoryDocument.from_memory(memory)
+   559→        await self.mongo.insert(mongo_doc)
+   560→        
+   561→        # 2. PostgreSQL：UPSERT 覆盖
+   562→        vector_records = await self._build_vector_records(memory)
+   563→        await self.pg.batch_upsert(vector_records)
+   564→        
+   565→        # 3. Elasticsearch：覆盖
+   566→        keyword_docs = self._build_keyword_docs(memory)
+   567→        await self.es.batch_index(keyword_docs)
+   568→    
+   569→    async def delete_memory(self, memory_id: str) -> None:
+   570→        """删除记忆点"""
+   571→        await self.mongo.delete_by_memory_id(memory_id)
+   572→        await self.pg.delete_by_memory_id(memory_id)
+   573→        await self.es.delete_by_memory_id(memory_id)
+   574→    
+   575→    async def _build_vector_records(self, memory: Memory) -> list[VectorRecord]:
+   576→        """构建向量记录（一条 Memory 对应多条记录）"""
+   577→        records = []
+   578→        
+   579→        # Content 向量
+   580→        if memory.content.text_for_embedding:
+   581→            embedding = await self.embedding.encode(
+   582→                memory.content.text_for_embedding
+   583→            )
+   584→            records.append(VectorRecord(
+   585→                memory_id=memory.memory_id,
+   586→                record_id=memory.record_id,
+   587→                field_name="content",
+   588→                embedding=embedding,
+   589→                scope=memory.scope,
+   590→                is_latest=memory.is_latest,
+   591→            ))
+   592→        
+   593→        # Metadata 向量字段
+   594→        for field_name, text in memory.metadata.vector_fields.items():
+   595→            embedding = await self.embedding.encode(text)
+   596→            records.append(VectorRecord(
+   597→                memory_id=memory.memory_id,
+   598→                record_id=memory.record_id,
+   599→                field_name=field_name,
+   600→                embedding=embedding,
+   601→                scope=memory.scope,
+   602→                is_latest=memory.is_latest,
+   603→            ))
+   604→        
+   605→        return records
+   606→    
+   607→    def _build_keyword_docs(self, memory: Memory) -> list[KeywordDocument]:
+   608→        """构建关键词文档（一条 Memory 对应一个文档）"""
+   609→        doc = KeywordDocument(
+   610→            doc_id=memory.memory_id,
+   611→            memory_id=memory.memory_id,
+   612→            record_id=memory.record_id,
+   613→            text=memory.content.text_for_keyword,
+   614→            data=memory.content.data,
+   615→            metadata=memory.metadata,
+   616→            sources=memory.sources,
+   617→            scope=memory.scope,
+   618→            is_latest=memory.is_latest,
+   619→        )
+   620→        return [doc]
+   621→```
+   622→
+   623→---
+   624→
+   625→## 6. 检索流程
+   626→
+   627→### 6.1 统一检索流程
+   628→
+   629→OmniMem 采用 **"双路召回 + 统一获取"** 的检索策略，充分利用各存储引擎的优势。
+   630→
+   631→为了应对复杂的过滤需求，检索请求使用统一的 `SearchFilters` 结构来封装所有过滤条件：
+   632→
+   633→```python
+   634→@dataclass
+   635→class SearchFilters:
+   636→    """统一过滤条件容器"""
+   637→    # 核心字段过滤 (First-class citizens)
+   638→    scope: ScopeFilter | None = None          # 隔离域过滤 (最高优先级)
+   639→    type: MemoryType | list[MemoryType] | None = None # 类型过滤
+   640→    
+   641→    # 结构化数据过滤
+   642→    data: dict[str, Any] | None = None        # 对应 content.data 字段
+   643→    metadata: dict[str, Any] | None = None    # 对应 metadata 字段
+   644→    
+   645→    # 预留扩展 (Future extensions)
+   646→    # time_range: TimeRange | None = None
+   647→```
+   648→
+   649→```
+   650→┌─────────────────────────────────────────────────────────────────┐
+   651→│                       SearchQuery                               │
+   652→│  - query: str                                                   │
+   653→│  - enable_vector: bool (PostgreSQL)                             │
+   654→│  - enable_keyword: bool (Elasticsearch)                         │
+   655→│  - filters: SearchFilters (统一过滤结构)                          │
+   656→│     ├── scope: ScopeFilter                                      │
+   657→│     ├── type: MemoryType                                        │
+   658→│     ├── data: dict (结构化数据)                                  │
+   659→│     └── metadata: dict (元数据)                                  │
+   660→└───────────────────────────┬─────────────────────────────────────┘
+   661→                            │
+   662→                            ▼
+   663→┌─────────────────────────────────────────────────────────────────┐
+   664→│                     Search Engine                               │
+   665→├─────────────────────────────────────────────────────────────────┤
+   666→│                                                                 │
+   667→│  Step 1: 并行召回 (Parallel Recall)                              │
+   668→│  ┌───────────────────────────┐  ┌────────────────────────────┐  │
+   669→│  │ PostgreSQL (Vector)       │  │ Elasticsearch (Keyword)    │  │
+   670→│  │ • HNSW 向量相似度          │  │ • BM25 全文检索             │  │
+   671→│  │ • filters.scope 过滤       │  │ • filters.scope 过滤       │  │
+   672→│  │ • filters.type 过滤        │  │ • filters.type 过滤        │  │
+   673→│  │ • filters.data/meta (JSONB)│  │ • filters.data/meta (Map)  │  │
+   674→│  └─────────────┬─────────────┘  └──────────────┬─────────────┘  │
+   675→│                │                               │                │
+   676→│                ▼                               ▼                │
+   677→│        Candidate IDs (Score)           Candidate IDs (Score)    │
+   678→│                │                               │                │
+   679→│                └───────────────┬───────────────┘                │
+   680→│                                │                                │
+   681→│  Step 2: 结果融合 (ID Fusion)   ▼                                │
+   682→│                        Unique Memory IDs                        │
+   683→│                                │                                │
+   684→│                                ▼                                │
+   685→│  Step 3: 完整数据获取 (Data Fetch)                                │
+   686→│  ┌───────────────────────────────────────────────────────────┐  │
+   687→│  │ MongoDB (Primary Storage)                                 │  │
+   688→│  │ • 根据 memory_ids 批量获取                                 │  │
+   689→│  │ • Scope 过滤 (最终一致性校验，利用扁平化索引)                 │  │
+   690→│  │ • 历史版本控制 (is_latest)                                 │  │
+   691→│  └─────────────────────────────┬─────────────────────────────┘  │
+   692→│                                │                                │
+   693→│                                ▼                                │
+   694→│                         Memory Objects                          │
+   695→│                                                                 │
+   696→└─────────────────────────────────────────────────────────────────┘
+   697→```
+   698→
+   699→### 6.2 详细步骤说明
+   700→
+   701→1.  **并行召回 (Parallel Recall)**
+   702→    *   **PostgreSQL**: 利用 `pgvector` 的 HNSW 索引进行向量召回。同时利用 `filters.scope` (独立列/GIN)、`filters.data/metadata` (JSONB) 以及其他核心字段 (如 `type`) 的独立列进行高效过滤。
+   703→    *   **Elasticsearch**: 利用 `text` 字段进行 BM25 检索。同时利用 `filters.scope`、`filters.data/metadata` 以及其他核心字段 (如 `type`) 进行精确过滤。
+   704→    *   **优势**: 充分发挥向量语义检索和关键词精确匹配的互补优势，且统一了过滤接口。
+   705→
+   706→2.  **结果融合 (ID Fusion)**
+   707→    *   将两路召回的 `memory_id` 列表合并。
+   708→    *   **去重**: 保证同一个 Memory 只被获取一次。
+   709→    *   **排序融合 (Optional)**: 可采用 RRF (Reciprocal Rank Fusion) 或加权评分对结果进行初步重排序。
+   710→
+   711→3.  **完整数据获取 (Data Fetch)**
+   712→    *   使用去重后的 ID 列表向 MongoDB 发起批量查询 (`$in`)。
+   713→    *   **Scope 终极校验**: 虽然索引层已过滤，但 MongoDB 作为 Source of Truth，会再次应用 Scope 过滤条件。利用 MongoDB 中**扁平化的 Scope 字段** (如 `scope_user_id`) 确保查询高效且安全。
+   714→    *   **版本控制**: 默认仅获取 `is_latest=true` 的记录。
+   715→
+   716→### 6.3 为什么需要多层 Scope 过滤？
+   717→
+   718→1.  **索引层过滤 (Pre-filter)**:
+   719→    *   **目的**: 减少召回候选集，提升向量计算和倒排链合并的性能。
+   720→    *   **手段**: 利用 PG 的 GIN/B-tree 索引和 ES 的倒排索引。
+   721→
+   722→2.  **MongoDB 层过滤 (Post-filter)**:
+   723→    *   **目的**: 数据一致性兜底。
+   724→    *   **场景**: 处理索引同步延迟（例如索引未及时更新但主库已更新）、处理复杂的非索引字段过滤条件。
+   725→    *   **手段**: 利用 MongoDB 的 Compound Index 和扁平化 Scope 字段。
+   726→
+   727→---
+   728→
+   729→## 7. 相关文档
+   730→
+   731→- [MongoDB 存储模型设计](./STORAGE_MONGODB.md)
+   732→- [PostgreSQL 向量索引设计](./STORAGE_POSTGRESQL.md)
+   733→- [Elasticsearch 关键词索引设计](./STORAGE_ELASTICSEARCH.md)
+   734→
+
+<system-reminder>
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+</system-reminder>

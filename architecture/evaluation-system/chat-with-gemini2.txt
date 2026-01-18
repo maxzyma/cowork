@@ -1,0 +1,131 @@
+这是一份为您整理的完整设计文档，涵盖了从最初的“对抗理念”到最终“LangFuse 伴生治理架构”的全过程。您可以将以下内容保存为 `AEP_Product_Design_Full_Case.md` 或 PDF 文档。
+
+***
+
+# 📘 Agent Evaluation Platform (AEP) 产品设计全案
+> **Version:** 3.0 (Final Draft)
+> **Core Philosophy:** From Static Bench to Dynamic Arena (从静态考卷到动态竞技场)
+> **Architecture:** LangFuse Overlay (基于 LangFuse 的治理与可视化层)
+
+---
+
+## 1. 核心愿景与架构演进
+
+### 1.1 行业洞察
+*   **传统痛点：** 静态 Benchmark（问答题）无法衡量 Agent 在复杂任务中的真实能力。
+*   **AEP 理念：**
+    *   **Arena (竞技场)：** 用“模拟对抗”取代“静态批改”。
+    *   **Simulation (模拟)：** 配置具备“人设”和“隐藏状态”的 Simulator（模拟器）与 Agent 进行多轮博弈。
+    *   **Data-Driven (数据驱动)：** 对抗产生 Trace，Trace 驱动评估。
+
+### 1.2 架构定义：AEP 3.0 (LangFuse 伴生模式)
+AEP 不再重新造轮子，而是作为 **LangFuse 的高级语义治理层**。
+*   **Data Consistency > Execution Control**：AEP 定义协议，业务方自主执行。
+*   **分层逻辑：**
+    *   **底层 (LangFuse)：** 存储 Dataset (考题)、Trace (过程)、Score (结果)。
+    *   **中间层 (AEP Protocol)：** 定义 Metadata 标准 (`aep_role`, `must_pass`)。
+    *   **顶层 (AEP Dashboard)：** 提供 `Leaderboards` 和 `Arena Replay` 等专用视图。
+
+---
+
+## 2. 菜单架构设计 (Navigation)
+
+平台功能划分为四个核心模块，遵循 **“结果 -> 过程 -> 资产 -> 标准”** 的逻辑。
+
+### 🏆 I. Leaderboards (能力榜单)
+**定位：** 决策中心。版本验收与能力发布的“闸口”。
+*   **核心价值：** 聚合 LangFuse Runs，进行多维度横向对比。
+*   **关键设计：** 区分“回归防守”与“探索进攻”。
+
+### 🔍 II. Arena Replay (行为透视)
+**定位：** 研发复盘工具。
+*   **核心价值：** 将扁平的 JSON Trace 还原为 3D 对抗现场。
+*   **关键设计：** 双屏视图（明面对话 + 模拟器内心戏/隐藏状态）。
+
+### 📚 III. Benchmark Studio (基准工坊)
+**定位：** 资产管理中心。
+*   **核心价值：** 高级 Dataset 编辑器。
+*   **关键设计：** 维护“参数化矩阵”与“Golden Dataset（金标准集）”。
+
+### 🔌 IV. Integration Hub (接入中心)
+**定位：** 开发者协议库。
+*   **核心价值：** 定义 JSON Schema 和 SDK 接入指引。
+
+---
+
+## 3. 核心模块深度设计
+
+### 3.1 🏆 Leaderboards (详细设计)
+页面展示一次评估任务 (Job/Run) 的最终成绩单。
+
+**UI 列表列定义：**
+1.  **版本标识 (Run Name/Tag):** 如 `v1.2_Release`。
+2.  **🛡️ 回归验收 (Regression Guardrails):**
+    *   *数据源:* `Type = Bad Case (Scripted)` 的题目。
+    *   *逻辑:* **一票否决制**。必须 100% 通过。
+    *   *视觉:* 红绿灯显示。失败则高亮提示 "3 Regressions"（点击跳转复盘）。
+3.  **⚔️ 探索能力 (Exploration Score):**
+    *   *数据源:* `Type = New Scenario (Persona)` 的题目。
+    *   *逻辑:* 综合得分 (0-100)。
+    *   *视觉:* 搭配 Sparkline (迷你雷达图) 展示分项能力。
+4.  **操作区:** `Compare` 按钮，支持两个版本的 Diff 对比（雷达图重叠 + 胜负矩阵）。
+
+### 3.2 🎭 Simulator 配置与逻辑 (Benchmark Studio)
+模拟器采用 **“单体融合架构”**，通过 Dataset Item 的 Metadata 驱动不同模式。
+
+*   **Mode A: 剧本复刻 (Scripted Mode) —— 用于回归**
+    *   *来源:* 历史 Bad Case 转化。
+    *   *逻辑:* 模拟器被注入 `script_anchors`（锚点）。
+    *   *行为:* 强制执行特定动作（如：“必须在第3轮拒绝退款”），验证 Agent 是否修复了特定 Bug。
+*   **Mode B: 人设探索 (Persona Mode) —— 用于泛化**
+    *   *来源:* 参数化矩阵随机生成 (Random Sampling)。
+    *   *逻辑:* 模拟器仅获得 `persona_traits`（如：暴躁、吝啬）。
+    *   *行为:* 基于 LLM 自由发挥，用于发现未知的新问题。
+
+### 3.3 🔍 Arena Replay (Trace Analysis)
+解决“Log 看不懂”的问题。
+
+*   **左屏 (Surface):** 聊天气泡流。
+*   **右屏 (Under the Hood):** 可视化渲染 Trace 中的 `aep_hidden_state`。
+    *   *例如:* 情绪仪表盘 (Anger: 80%)、意图槽位 (Intent: Refund)、剧本触发提示 (Anchor Triggered)。
+
+---
+
+## 4. 接入协议 (Integration Protocol)
+
+为了实现“最小约束”，业务方只需在 Trace 中遵循以下 JSON Schema：
+
+### 4.1 身份与模式标记
+```json
+// 在 langfuse.create_trace 时传入
+metadata: {
+  "dataset_item_id": "xxx",
+  "simulation_mode": "scripted", // 或 "persona"
+  "case_type": "regression"      // 或 "exploration"
+}
+```
+
+### 4.2 模拟器状态透传 (用于 Arena Replay)
+```json
+// 在 Simulator 的 Span 中记录
+metadata: {
+  "aep_role": "simulator",
+  "aep_hidden_state": {
+    "anger_level": 85,
+    "internal_thought": "Agent 一直在回避问题，我准备投诉。",
+    "script_execution": "Step 2/3 Completed"
+  }
+}
+```
+
+---
+
+## 5. 总结：核心竞争力
+
+1.  **覆盖率 (Coverage):** 通过“参数化矩阵”保证测试广度。
+2.  **确定性 (Determinism):** 通过“剧本复刻模式”保证历史 Bad Case 100% 回归。
+3.  **可视性 (Visibility):** 通过“Arena Replay”打开对抗的黑盒。
+4.  **灵活性 (Flexibility):** 基于 LangFuse 协议，不限制业务方的开发语言和运行环境。
+
+---
+*End of Document*

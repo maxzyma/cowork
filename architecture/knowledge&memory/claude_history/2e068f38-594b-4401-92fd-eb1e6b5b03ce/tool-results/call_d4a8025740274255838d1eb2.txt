@@ -1,0 +1,16 @@
+     1→{
+     2→  "sandbox": {
+     3→    "enabled": true,
+     4→    "autoAllowBashIfSandboxed": true
+     5→  },
+     6→  "permissions": {
+     7→    "allow": [
+     8→      "WebSearch"
+     9→    ]
+    10→  }
+    11→}
+    12→
+
+<system-reminder>
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+</system-reminder>

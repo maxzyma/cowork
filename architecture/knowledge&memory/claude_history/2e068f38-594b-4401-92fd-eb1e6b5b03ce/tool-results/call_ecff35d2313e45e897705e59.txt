@@ -1,0 +1,5 @@
+total 8
+drwxr-xr-x@  4 magooup  staff  128 Jan 10 20:06 .
+drwxr-xr-x   5 magooup  staff  160 Jan  9 20:05 ..
+-rw-r--r--@  1 magooup  staff  144 Jan 10 20:06 settings.local.json
+drwxr-xr-x@ 18 magooup  staff  576 Jan  9 20:06 skills

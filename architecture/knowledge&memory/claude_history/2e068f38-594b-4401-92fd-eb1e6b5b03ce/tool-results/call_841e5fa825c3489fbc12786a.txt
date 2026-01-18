@@ -1,0 +1,49 @@
+Web search results for query: "DSPy memory agents 2025 open source"
+
+I'll perform a web search for DSPy memory agents 2025 open source information.
+
+Links: [{"title":"DSPy","url":"https://dspy.ai/"},{"title":"Comparing LangGraph, DSPy, CrewAI, Agno, and More","url":"https://langwatch.ai/blog/best-ai-agent-frameworks-in-2025-comparing-langgraph-dspy-crewai-agno-and-more"},{"title":"Building Powerful Open Source AI Agents with DSPy ...","url":"https://medium.com/thoughts-on-machine-learning/building-powerful-open-source-ai-agents-with-dspy-langgraph-crewai-and-nebius-ai-1-a2b81255b7ea"},{"title":"Building RAG as Agent","url":"https://dspy.ai/tutorials/agents/"},{"title":"DSPy: An open-source framework for LLM-powered ...","url":"https://www.infoworld.com/article/3956455/dspy-an-open-source-framework-for-llm-powered-applications.html"},{"title":"Top 10 Open-Source AI Agent Frameworks of May 2025","url":"https://apipie.ai/docs/blog/top-10-opensource-ai-agent-frameworks-may-2025"},{"title":"avbiswas/mem0-dspy","url":"https://github.com/avbiswas/mem0-dspy"},{"title":"How to build your own long-term Agentic Memory System ...","url":"https://www.youtube.com/watch?v=n4GPdsQnHqc"},{"title":"Evaluating the Top Agent Frameworks for AI Development","url":"https://www.walturn.com/insights/evaluating-the-top-agent-frameworks-for-ai-development"},{"title":"LangChain, LlamaIndex, and DSPy – A Comparison","url":"https://deeplp.com/f/langchain-llamaindex-and-dspy-%25E2%2580%2593-a-comparison"}]
+
+# Search Results: DSPy Memory Agents 2025 Open Source
+
+## Key Findings
+
+### 1. **DSPy Framework Overview** (dspy.ai)
+- DSPy is a **declarative framework** for building modular AI software
+- Allows developers to iterate on structured code rather than brittle strings
+- Fully open-source and freely accessible
+
+### 2. **Memory Agents Integration**
+There are several resources about building memory-enabled systems:
+
+- **avbiswas/mem0-dspy** (GitHub): Demonstrates building intelligent memory-enabled chatbots using DSPy and Qdrant for persistent conversational memory
+
+- **YouTube Tutorial**: "How to build your own long-term Agentic Memory System" using DSPy and Qdrant Vector Database to create memory systems from scratch
+
+### 3. **DSPy Agents & RAG** (Dec 17, 2024)
+- Tutorial on building RAG as agents
+- Examples of setting up dspy.ReAct agents with tools
+- Optimization for advanced browsing and multi-hop search
+
+### 4. **2025 Framework Comparisons**
+Recent articles compare DSPy with other frameworks:
+
+- **LangWatch Blog (Jun 21, 2025)**: Comparing LangGraph, DSPy, CrewAI, Agno, and more - detailed developer-tested comparison of top AI agent frameworks in 2025
+
+- **Medium Article**: Building Powerful Open Source AI Agents with DSPy, LangGraph, CrewAI and Nebius AI
+
+- **APIPie (May 1, 2025)**: Top 10 Open-Source AI Agent Frameworks of May 2025
+
+### 5. **Current Status (April 2025)**
+- DSPy 2.6.14 was released in March 2025
+- Active development with frequent releases
+- Expanding ecosystem
+- Confirmed as fully open-source
+
+Would you like me to search for more specific information about any particular aspect, such as:
+- DSPy memory implementation details
+- Comparison with other frameworks
+- How to get started with DSPy agents
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

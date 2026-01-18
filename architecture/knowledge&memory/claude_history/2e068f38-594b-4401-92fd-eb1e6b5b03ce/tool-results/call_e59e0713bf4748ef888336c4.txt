@@ -1,0 +1,35 @@
+Web search results for query: "Mem0 AI memory framework 2025"
+
+Links: [{"title":"Mem0 - The Memory Layer for your AI Apps","url":"https://mem0.ai/"},{"title":"AI Memory Layer Guide December 2025","url":"https://mem0.ai/blog/ai-memory-layer-guide"},{"title":"Mem0 AI Memory Framework - 项目能力分析报告","url":"https://zhuanlan.zhihu.com/p/1917977460064104980"},{"title":"Mem0: Building Production-Ready AI Agents with Scalable ...","url":"https://arxiv.org/abs/2504.19413"},{"title":"mem0ai/mem0: Universal memory layer for AI Agents","url":"https://github.com/mem0ai/mem0"},{"title":"Mem0: The Revolutionary AI Memory Framework That's ...","url":"https://medium.com/@mingyang.heaven/mem0-the-revolutionary-ai-memory-framework-thats-changing-how-we-build-intelligent-agents-21fbd69fb153"},{"title":"深入浅出分析最近火热的Mem0个性化AI记忆层","url":"https://www.cnblogs.com/xiaoqi/p/18315502/mem0"},{"title":"A comprehensive review of the best AI Memory systems","url":"https://pieces.app/blog/best-ai-memory-systems"},{"title":"AI Memory Infrastructure: Mem0 vs. OpenMemory & What's ...","url":"https://fosterfletcher.com/ai-memory-infrastructure/"},{"title":"CrewAI Guide: Build Multi-Agent AI Teams in October 2025","url":"https://mem0.ai/blog/crewai-guide-multi-agent-ai-teams"}]
+
+# Search Results: Mem0 AI Memory Framework 2025
+
+## Key Findings
+
+### 🏠 **Official Resources**
+1. **[Mem0 Official Website](https://mem0.ai/)** - Describes Mem0 as "a universal, self-improving memory layer for LLM applications, powering personalized AI experiences that cut costs and enhance user delight"
+
+2. **[GitHub Repository](https://github.com/mem0ai/mem0)** - Open-source framework with the description: "enhances AI assistants and agents with an intelligent memory layer, enabling personalized AI interactions"
+
+### 📊 **Recent 2025 Updates**
+- **[AI Memory Layer Guide (Dec 2025)](https://mem0.ai/blog/ai-memory-layer-guide)** - Claims to cut token costs by 90%, reduce latency by 91%, and build agents that remember user context
+- **[CrewAI Integration Guide (Oct 2025)](https://mem0.ai/blog/crewai-guide-multi-agent-ai-teams)** - Focuses on multi-agent AI teams with persistent memory
+- **[Best AI Memory Systems Review (Dec 2025)](https://pieces.app/blog/best-ai-memory-systems)** - Comprehensive comparison of AI memory architectures
+
+### 📚 **Research & Analysis**
+- **[Academic Paper on Arxiv](https://arxiv.org/abs/2504.19413)** - "Mem0: Building Production-Ready AI Agents with Scalable Memory-Centric Architecture" (cited by 24 papers)
+- **[Chinese Analysis (Jun 2025)](https://zhuanlan.zhihu.com/p/1917977460064104980)** - Project capability analysis report
+- **[Infrastructure Comparison (Nov 2025)](https://fosterfletcher.com/ai-memory-infrastructure/)** - Reports Mem0 has crossed **41,000 GitHub stars** and **186 million API calls** in the last quarter
+
+### 🎯 **Key Capabilities**
+- Intelligent memory layer for AI agents and assistants
+- Personalized AI interactions through memory
+- Self-improving and adaptive learning
+- Cost reduction (up to 90% token savings)
+- Latency reduction (91% improvement)
+- Long-term context retention
+
+Would you like me to perform a more specific search on any particular aspect of Mem0?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

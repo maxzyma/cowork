@@ -1,0 +1,381 @@
+     1→---
+     2→title: Core Concepts
+     3→---
+     4→
+     5→# Long-term Memory in LLM Applications
+     6→
+     7→Long-term memory allows agents to remember important information across conversations. LangMem provides ways to extract meaningful details from chats, store them, and use them to improve future interactions. At its core, each memory operation in LangMem follows the same pattern:
+     8→
+     9→1. Accept conversation(s) and current memory state
+    10→2. Prompt an LLM to determine how to expand or consolidate the memory state
+    11→3. Respond with the updated memory state
+    12→
+    13→The best memory systems are often application-specific. In designing yours, the following questions can serve as a useful guide:
+    14→
+    15→1. **What** [type of content](#memory-types) should your agent learn: facts/knowledge? summary of past events? Rules and style?
+    16→2. **When** should the [memories be formed](#writing-memories) (and **who** should form the memories)
+    17→3. **Where** should memories [be stored](#storage-system)? (in the prompt? Semantic store?). This largely determines how they will be recalled.
+    18→
+    19→## Types of Memory {#memory-types}
+    20→
+    21→Memory in LLM applications can reflect some of the structure of human memory, with each type serving a distinct purpose in building adaptive, context-aware systems:
+    22→
+    23→
+    24→| Memory Type | Purpose | Agent Example | Human Example | Typical Storage Pattern |
+    25→|-------------|---------|---------------|---------------|-----------------------|
+    26→| Semantic | Facts & Knowledge | User preferences; knowledge triplets | Knowing Python is a programming language | Profile or Collection |
+    27→| Episodic | Past Experiences | Few-shot examples; Summaries of past conversations | Remembering your first day at work | Collection |
+    28→| Procedural | System Behavior | Core personality and response patterns | Knowing how to ride a bicycle | Prompt rules or Collection |
+    29→
+    30→### Semantic Memory: Facts and Knowledge
+    31→
+    32→[Semantic memory](https://en.wikipedia.org/wiki/Semantic_memory) stores the essential facts and other information that ground an agent's responses. Two common representations of semantic memory are collections (to record an unbounded amount of knowledge to be searched at runtime) and profiles (to record task-specific information that follows a strict schema that is easily looked up by user or agent). 
+    33→
+    34→#### Collection
+    35→
+    36→Collections are what most people think of when they imagine agent long-term memory. In this type, memories are stored as individual documents or records. For each new conversation, the memory system can decide to insert new memories to the store. 
+    37→
+    38→Using a collection-type memory adds some complexity to the process of updating your memory state. The system must reconcile new information with previous beliefs, either _deleting_/_invalidating_ or _updating_/_consolidating_ existing memories. If the system over-extracts, this could lead to reduced precision of memories when your agent needs to search the store. If it under-extracts, this could lead to low recall. LangMem uses a memory enrichment process that strives to balance memory creation and consolidation, while letting you, the developer, customize the instructions to further shift the strength of each.
+    39→
+    40→Finally, memory relevance is more than just semantic similarity. Recall should combine similarity with "importance" of the memory, as well as the memory's "strength", which is a function of how recently/frequently it was used.
+    41→
+    42→![Collection update process](img/update-list.png)
+    43→
+    44→??? example "Extracting semantic memories as collections"
+    45→
+    46→    ??? note "Setup"
+    47→
+    48→        ```python
+    49→        from langmem import create_memory_manager
+    50→        
+    51→        # highlight-next-line
+    52→        manager = create_memory_manager(
+    53→            "anthropic:claude-3-5-sonnet-latest",
+    54→            instructions="Extract all noteworthy facts, events, and relationships. Indicate their importance.",
+    55→            # highlight-next-line
+    56→            enable_inserts=True,
+    57→        )
+    58→
+    59→        # Process a conversation to extract semantic memories
+    60→        conversation = [
+    61→            {"role": "user", "content": "I work at Acme Corp in the ML team"},
+    62→            {"role": "assistant", "content": "I'll remember that. What kind of ML work do you do?"},
+    63→            {"role": "user", "content": "Mostly NLP and large language models"}
+    64→        ]
+    65→        ```
+    66→
+    67→    ```python
+    68→    memories = manager.invoke({"messages": conversation})
+    69→    # Example memories:
+    70→    # [
+    71→    #     ExtractedMemory(
+    72→    #         id="27e96a9d-8e53-4031-865e-5ec50c1f7ad5",
+    73→    #         content=Memory(
+    74→    #             content="[IMPORTANT] User prefers to be called Lex (short for Alex) and appreciates"
+    75→    #             " casual, witty communication style with relevant emojis."
+    76→    #         ),
+    77→    #     ),
+    78→    #     ExtractedMemory(
+    79→    #         id="e2f6b646-cdf1-4be1-bb40-0fd91d25d00f",
+    80→    #         content=Memory(
+    81→    #             content="[BACKGROUND] Lex is proficient in Python programming and specializes in developing"
+    82→    #             " AI systems with a focus on making them sound more natural and less corporate."
+    83→    #         ),
+    84→    #     ),
+    85→    #     ExtractedMemory(
+    86→    #         id="c1e03ebb-a393-4e8d-8eb7-b928d8bed510",
+    87→    #         content=Memory(
+    88→    #             content="[HOBBY] Lex is a competitive speedcuber (someone who solves Rubik's cubes competitively),"
+    89→    #             " showing an interest in both technical and recreational puzzle-solving."
+    90→    #         ),
+    91→    #     ),
+    92→    #     ExtractedMemory(
+    93→    #         id="ee7fc6e4-0118-425f-8704-6b3145881ff7",
+    94→    #         content=Memory(
+    95→    #             content="[PERSONALITY] Based on communication style and interests, Lex appears to value authenticity,"
+    96→    #             " creativity, and technical excellence while maintaining a fun, approachable demeanor."
+    97→    #         ),
+    98→    #     ),
+    99→    # ]
+   100→
+   101→    ```
+   102→
+   103→#### Profiles
+   104→
+   105→**Profiles** on the other hand are well-scoped for a particular task. Profiles are a single document that represents the current state, like a user's main goals with using an app, their preferred name and response style, etc. When new information arrives, it updates the existing document rather than creating a new one. This approach is ideal when you only care about the latest state and want to avoid remembering extraneous information.
+   106→
+   107→![Profile update process](img/update-profile.png)
+   108→
+   109→??? example "Managing user preferences with profiles"
+   110→
+   111→    ??? note "Setup"
+   112→
+   113→        ```python
+   114→        from langmem import create_memory_manager
+   115→        from pydantic import BaseModel
+   116→
+   117→
+   118→        class UserProfile(BaseModel):
+   119→            """Save the user's preferences."""
+   120→            name: str
+   121→            preferred_name: str
+   122→            response_style_preference: str
+   123→            special_skills: list[str]
+   124→            other_preferences: list[str]
+   125→
+   126→
+   127→        manager = create_memory_manager(
+   128→            "anthropic:claude-3-5-sonnet-latest",
+   129→            schemas=[UserProfile],
+   130→            instructions="Extract user preferences and settings",
+   131→            enable_inserts=False,
+   132→        )
+   133→
+   134→        # Extract user preferences from a conversation
+   135→        conversation = [
+   136→            {"role": "user", "content": "Hi! I'm Alex but please call me Lex. I'm a wizard at Python and love making AI systems that don't sound like boring corporate robots 🤖"},
+   137→            {"role": "assistant", "content": "Nice to meet you, Lex! Love the anti-corporate-robot stance. How would you like me to communicate with you?"},
+   138→            {"role": "user", "content": "Keep it casual and witty - and maybe throw in some relevant emojis when it feels right ✨ Also, besides AI, I do competitive speedcubing!"},
+   139→        ]
+   140→        ```
+   141→
+   142→    ```python
+   143→    profile = manager.invoke({"messages": conversation})[0]
+   144→    print(profile)
+   145→    # Example profile:
+   146→    # ExtractedMemory(
+   147→    #     id="6f555d97-387e-4af6-a23f-a66b4e809b0e",
+   148→    #     content=UserProfile(
+   149→    #         name="Alex",
+   150→    #         preferred_name="Lex",
+   151→    #         response_style_preference="casual and witty with appropriate emojis",
+   152→    #         special_skills=[
+   153→    #             "Python programming",
+   154→    #             "AI development",
+   155→    #             "competitive speedcubing",
+   156→    #         ],
+   157→    #         other_preferences=[
+   158→    #             "prefers informal communication",
+   159→    #             "dislikes corporate-style interactions",
+   160→    #         ],
+   161→    #     ),
+   162→    # )
+   163→    ```
+   164→
+   165→Choose between profiles and collections based on how you'll use the data: profiles excel when you need quick access to current state and when you have data requirements about what type of information you can store. They are also easy to present to a user for manual editing. Collections are useful when you want to track knowledge across many interactions without loss of information, and when you want to recall certain information contextually rather than every time.
+   166→
+   167→### Episodic Memory: Past Experiences
+   168→
+   169→Episodic memory preserves successful interactions as learning examples that guide future behavior. Unlike semantic memory which stores facts, episodic memory captures the full context of an interaction—the situation, the thought process that led to success, and why that approach worked. These memories help the agent learn from experience, adapting its responses based on what has worked before.
+   170→
+   171→??? example "Defining and extracting episodes"
+   172→    
+   173→    ??? note "Setup"
+   174→
+   175→        ```python
+   176→        from pydantic import BaseModel, Field
+   177→        from langmem import create_memory_manager
+   178→
+   179→        class Episode(BaseModel):
+   180→            """An episode captures how to handle a specific situation, including the reasoning process
+   181→            and what made it successful."""
+   182→            
+   183→            observation: str = Field(
+   184→                ..., 
+   185→                description="The situation and relevant context"
+   186→            )
+   187→            thoughts: str = Field(
+   188→                ...,
+   189→                description="Key considerations and reasoning process"
+   190→            )
+   191→            action: str = Field(
+   192→                ...,
+   193→                description="What was done in response"
+   194→            )
+   195→            result: str = Field(
+   196→                ...,
+   197→                description="What happened and why it worked"
+   198→            )
+   199→
+   200→        # highlight-next-line
+   201→        manager = create_memory_manager(
+   202→            "anthropic:claude-3-5-sonnet-latest",
+   203→            schemas=[Episode],
+   204→            instructions="Extract examples of successful interactions. Include the context, thought process, and why the approach worked.",
+   205→            enable_inserts=True,
+   206→        )
+   207→
+   208→        # Example conversation
+   209→        conversation = [
+   210→            {"role": "user", "content": "What's a binary tree? I work with family trees if that helps"},
+   211→            {"role": "assistant", "content": "A binary tree is like a family tree, but each parent has at most 2 children. Here's a simple example:\n   Bob\n  /  \\\nAmy  Carl\n\nJust like in family trees, we call Bob the 'parent' and Amy and Carl the 'children'."},
+   212→            {"role": "user", "content": "Oh that makes sense! So in a binary search tree, would it be like organizing a family by age?"},
+   213→        ]
+   214→        ```
+   215→
+   216→    ```python
+   217→    # Extract episode(s)
+   218→    episodes = manager.invoke({"messages": conversation})
+   219→    # Example episode:
+   220→    # [
+   221→    #     ExtractedMemory(
+   222→    #         id="f9194af3-a63f-4d8a-98e9-16c66e649844",
+   223→    #         content=Episode(
+   224→    #             observation="User struggled debugging a recursive "
+   225→    #                         "function for longest path in binary "
+   226→    #                         "tree, unclear on logic.",
+   227→    #             thoughts="Used explorer in treehouse village "
+   228→    #                      "metaphor to explain recursion:\n"
+   229→    #                      "- Houses = Nodes\n"
+   230→    #                      "- Bridges = Edges\n"
+   231→    #                      "- Explorer's path = Traversal",
+   232→    #             action="Reframed problem using metaphor, "
+   233→    #                    "outlined steps:\n"
+   234→    #                    "1. Check left path\n"
+   235→    #                    "2. Check right path\n"
+   236→    #                    "3. Add 1 for current position\n"
+   237→    #                    "Highlighted common bugs",
+   238→    #             result="Metaphor helped user understand logic. "
+   239→    #                    "Worked because it:\n"
+   240→    #                    "1. Made concepts tangible\n"
+   241→    #                    "2. Created mental model\n"
+   242→    #                    "3. Showed key steps\n"
+   243→    #                    "4. Pointed to likely bugs",
+   244→    #         ),
+   245→    #     )
+   246→    # ]
+   247→    ```
+   248→
+   249→
+   250→### Procedural Memory: System Instructions
+   251→
+   252→Procedural memory encodes how an agent should behave and respond. It starts with system prompts that define core behavior, then evolves through feedback and experience. As the agent interacts with users, it refines these instructions, learning which approaches work best for different situations.
+   253→
+   254→![Instructions update process](img/update-instructions.png)
+   255→
+   256→??? example "Optimizing prompts based on feedback"
+   257→
+   258→    ??? note "Setup"
+   259→
+   260→        ```python
+   261→        from langmem import create_prompt_optimizer
+   262→
+   263→        # highlight-next-line
+   264→        optimizer = create_prompt_optimizer(
+   265→            "anthropic:claude-3-5-sonnet-latest",
+   266→            kind="metaprompt",
+   267→            config={"max_reflection_steps": 3}
+   268→        )
+   269→        ```
+   270→    ```python
+   271→    prompt = "You are a helpful assistant."
+   272→    trajectory = [
+   273→        {"role": "user", "content": "Explain inheritance in Python"},
+   274→        {"role": "assistant", "content": "Here's a detailed theoretical explanation..."},
+   275→        {"role": "user", "content": "Show me a practical example instead"},
+   276→    ]
+   277→    optimized = optimizer.invoke({
+   278→        "trajectories": [(trajectory, {"user_score": 0})], 
+   279→        "prompt": prompt
+   280→    })
+   281→    print(optimized)
+   282→    # You are a helpful assistant with expertise in explaining technical concepts clearly and practically. When explaining programming concepts:
+   283→
+   284→    # 1. Start with a brief, practical explanation supported by a concrete code example
+   285→    # 2. If the user requests more theoretical details, provide them after the practical example
+   286→    # 3. Always include working code examples for programming-related questions
+   287→    # 4. Pay close attention to user preferences - if they ask for a specific approach (like practical examples or theory), adapt your response accordingly
+   288→    # 5. Use simple, clear language and break down complex concepts into digestible parts
+   289→
+   290→    # When users ask follow-up questions or request a different approach, immediately adjust your explanation style to match their preferences. If they ask for practical examples, provide them. If they ask for theory, explain the concepts in depth.
+   291→    ```
+   292→
+   293→
+   294→
+   295→## Writing memories {#writing-memories}
+   296→
+   297→Memories can form in two ways, each suited for different needs. Active formation happens during conversations, enabling immediate updates when critical context emerges. Background formation occurs between interactions, allowing deeper pattern analysis without impacting response time. This dual approach lets you balance responsiveness with thorough learning.
+   298→
+   299→| Formation Type | Latency Impact | Update Speed | Processing Load | Use Case |
+   300→|----------------|----------------|--------------|-----------------|-----------|
+   301→| Active | Higher | Immediate | During Response | Critical Context Updates |
+   302→| Background | None | Delayed | Between/After Calls | Pattern Analysis, Summaries |
+   303→
+   304→![Hot path vs background memory processing](img/hot_path_vs_background.png)
+   305→
+   306→### Conscious Formation
+   307→
+   308→You may want your agent to save memories "in the hot path". This active memory formation happens during the conversation, enabling immediate updates when critical context emerges. This approach is easy to implement and lets the agent itself choose how to store and update its memory. However, it adds perceptible latency to user interactions, and it adds one more obstacle to the agent's ability to satisfy the user's needs.
+   309→
+   310→Check out the ["hot path" quickstart](../hot_path_quickstart.md) for an example of how to use this technique.
+   311→
+   312→### Subconscious Formation
+   313→
+   314→"Subconscious" memory formation refers to the technique of prompting an LLM to reflect on a conversation after it occurs (or after it has been inactive for some period), finding patterns and extracting insights without slowing down the immediate interaction or adding complexity to the agent's tool choice decisions. This approach is perfect for ensuring higher recall of extracted information.
+   315→
+   316→Check out the ["background" quickstart](../background_quickstart.md) for an example of how to use this technique.
+   317→
+   318→## Integration Patterns
+   319→
+   320→LangMem's memory utilities are organized in two layers of integration patterns:
+   321→
+   322→### 1. Core API {#functional-core}
+   323→
+   324→At its heart, LangMem provides functions that transform memory state without side effects. These primitives are the building blocks for memory operations:
+   325→
+   326→- [**Memory Managers**](../reference/memory.md#langmem.create_memory_manager): Extract new memories, update or remove outdated memories, and consolidate and generalize from existing memories based on new conversation information
+   327→- [**Prompt Optimizers**](../reference/prompt_optimization.md#langmem.create_prompt_optimizer): Update prompt rules and core behavior based on conversation information (with optional feedback)
+   328→
+   329→These core functions do not depend on any particular database or storage system. You can use them in any application.
+   330→
+   331→### 2. Stateful Integration
+   332→
+   333→The next layer up depends on LangGraph's long-term memory store. These components use the core API above to transform memories that exist in the store and upsert/delete them as needed when new conversation information comes in:
+   334→
+   335→- [**Store Managers**](../reference/memory.md#langmem.create_memory_store_manager): Automatically persist extracted memories
+   336→- [**Memory Management Tools**](../reference/tools.md#langmem.create_manage_memory_tool): Give agents direct access to memory operations
+   337→
+   338→Use these if you're using LangGraph Platform or LangGraph OSS, since it's an easy way to add memory capabilities to your agents.
+   339→
+   340→
+   341→## Storage System {#storage-system}
+   342→
+   343→??? note "Storage is optional"
+   344→    
+   345→    Remember that LangMem's core functionality is built around that don't require any specific storage layer. The storage features described here are part of LangMem's higher-level integration with LangGraph, useful when you want built-in persistence.
+   346→
+   347→
+   348→When using LangMem's stateful operators or platform services, the storage system is built on LangGraph's storage primitives, providing a flexible and powerful way to organize and access memories. The storage system is designed around two concepts:
+   349→
+   350→### Memory Namespaces {#memory-namespaces}
+   351→
+   352→Memories are organized into namespaces that allow for natural segmentation of data:
+   353→
+   354→- **Multi-Level Namespaces**: Group memories by organization, user, application, or any other hierarchical structure
+   355→- **Contextual Keys**: Identify memories uniquely within their namespace
+   356→- **Structured Content**: Store rich, structured data with metadata for better organization
+   357→
+   358→??? example "Organizing memories hierarchically"
+   359→
+   360→    ```python
+   361→    # Organize memories by organization -> configurable user -> context
+   362→    namespace = ("acme_corp", "{user_id}", "code_assistant")
+   363→    ```
+   364→
+   365→Namespaces can include template variables (such as `"{user_id}"`) to be populated at runtime from `configurable` fields in the `RunnableConfig`.
+   366→See [how to dynamically configure namespaces](../guides/dynamically_configure_namespaces.md) for an example, or the [NamespaceTemplate](../reference/utils.md#langmem.utils.NamespaceTemplate) reference docs for more details.
+   367→
+   368→### Flexible Retrieval
+   369→
+   370→If you use one of the managed APIs, LangMem will integrate directly with LangGraph's [BaseStore](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore) interface for memory storage and retrieval. The storage system supports multiple ways to retrieve memories:
+   371→
+   372→- [**Direct Access**](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore.get): Get a specific memory by key
+   373→- [**Semantic Search**](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore.search): Find memories by semantic similarity
+   374→- [**Metadata Filtering**](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore.search): Filter memories by their attributes
+   375→
+   376→For more details on storage capabilities, see the [LangGraph Storage documentation](https://langchain-ai.github.io/langgraph/reference/store/).
+   377→
+
+<system-reminder>
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+</system-reminder>

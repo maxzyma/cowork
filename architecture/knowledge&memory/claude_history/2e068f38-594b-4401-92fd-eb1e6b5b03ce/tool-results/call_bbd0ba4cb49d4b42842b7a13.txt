@@ -1,0 +1,20 @@
+total 56
+drwxr-xr-x@  19 magooup  staff    608 Jan 10 22:26 .
+drwxr-x---+ 261 magooup  staff   8352 Jan 10 22:26 ..
+drwxr-xr-x@   3 magooup  staff     96 Jan  8 14:49 cache
+drwxr-xr-x@   3 magooup  staff     96 Jan  9 18:32 chrome
+drwx------@  31 magooup  staff    992 Jan 10 22:12 debug
+drwx------@   6 magooup  staff    192 Jan  9 18:33 file-history
+-rw-r--r--@   1 magooup  staff  15871 Jan 10 22:26 history.jsonl
+drwxr-xr-x@   6 magooup  staff    192 Jan 10 22:19 ide
+drwxr-xr-x@   2 magooup  staff     64 Jan 10 22:26 plans
+drwxr-xr-x@   7 magooup  staff    224 Dec 21 21:32 plugins
+drwxr-xr-x@  10 magooup  staff    320 Jan 10 22:19 projects
+drwxr-xr-x@   9 magooup  staff    288 Jan 10 22:20 session-env
+-rw-r--r--@   1 magooup  staff    381 Jan  5 13:03 settings.json
+-rw-------@   1 magooup  staff     81 Jan  8 13:52 settings.local.json
+drwxr-xr-x@  16 magooup  staff    512 Jan 10 22:12 shell-snapshots
+-rw-------@   1 magooup  staff   2594 Jan 10 20:09 stats-cache.json
+drwxr-xr-x@   6 magooup  staff    192 Dec 21 21:32 statsig
+drwxr-xr-x@   2 magooup  staff     64 Dec 19 01:39 telemetry
+drwxr-xr-x@  51 magooup  staff   1632 Jan 10 22:12 todos

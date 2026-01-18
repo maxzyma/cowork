@@ -23,6 +23,22 @@ python scripts/transcribe_video.py video.mp4 --model large
 python scripts/transcribe_video.py video.mp4 --language zh
 ```
 
+## Sandbox Environment
+
+This skill is sandbox-compatible and automatically uses `TMPDIR` environment variable for temporary files (default: `/tmp/claude`).
+
+**When running in sandbox:**
+1. Ensure ffmpeg is accessible (may need to disable sandbox temporarily)
+2. Output files must be in allowed directories (current directory, Downloads, etc.)
+3. Temporary audio files are stored in `TMPDIR` and auto-cleaned
+
+**To disable sandbox if needed:**
+```bash
+/sandbox
+```
+
+Then re-enable after transcription completes.
+
 ## Prerequisites
 
 ### 1. Install ffmpeg
@@ -81,6 +97,7 @@ python scripts/transcribe_video.py video.mp4 --language zh
 | `--no-timestamps` | Omit timestamps from output |
 | `--keep-audio` | Keep extracted audio file |
 | `--audio-only` | Use existing audio file instead of extracting |
+| `--temp-dir` | Custom temp directory (default: TMPDIR or /tmp/claude) |
 
 ## Model Selection
 

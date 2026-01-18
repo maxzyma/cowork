@@ -1,0 +1,97 @@
+     1→[project]
+     2→name = "langmem"
+     3→version = "0.0.30"
+     4→description = "Prebuilt utilities for memory management and retrieval."
+     5→readme = "README.md"
+     6→requires-python = ">=3.10"
+     7→license = { file = "LICENSE" }
+     8→dependencies = [
+     9→    "langchain>=0.3.15",
+    10→    "langchain-core>=0.3.46",
+    11→    "langchain-openai>=0.3.1",
+    12→    "trustcall>=0.0.39",
+    13→    "langgraph>=0.6.0,<2",
+    14→    "langchain-anthropic>=0.3.3",
+    15→    "langsmith>=0.3.8",
+    16→    "langgraph-checkpoint>=2.0.12",
+    17→]
+    18→
+    19→[project.packages]
+    20→find = { where = ["src"] }
+    21→
+    22→[build-system]
+    23→requires = ["hatchling"]
+    24→build-backend = "hatchling.build"
+    25→
+    26→[dependency-groups]
+    27→dev = [
+    28→    "anyio>=4.8.0",
+    29→    "langchain-anthropic>=0.3.3",
+    30→    "langchain-openai>=0.3.1",
+    31→    "langgraph-cli[inmem]>=0.1.70",
+    32→    "pytest>=8.3.4",
+    33→    "pytest-watch>=4.2.0",
+    34→    "pytest-xdist>=3.6.1",
+    35→    "langgraph-prebuilt>=0.1.1",
+    36→    "ruff>=0.12.12",
+    37→]
+    38→docs = [
+    39→    "markdown-callouts>=0.4.0",
+    40→    "markdown-include>=0.8.1",
+    41→    "mkdocs>=1.6.1",
+    42→    "mkdocs-autorefs>=1.3.0",
+    43→    "mkdocs-exclude>=1.0.2",
+    44→    "mkdocs-git-committers-plugin-2>=2.5.0",
+    45→    "mkdocs-material>=9.6.1",
+    46→    "mkdocs-minify-plugin>=0.8.0",
+    47→    "mkdocs-redirects>=1.2.2",
+    48→    "mkdocs-rss-plugin>=1.17.1",
+    49→    "mkdocstrings>=0.27.0",
+    50→    "mkdocstrings-python>=1.13.0",
+    51→    "nbformat>=5.10.4",
+    52→    "nbconvert>=7.16.6",
+    53→]
+    54→
+    55→[tool.uv.workspace]
+    56→members = ["evals/gen"]
+    57→
+    58→[tool.ruff]
+    59→lint.select = ["E", "F", "I", "TID251"]
+    60→lint.ignore = ["E501"]
+    61→line-length = 88
+    62→indent-width = 4
+    63→extend-include = ["*.ipynb"]
+    64→
+    65→[tool.ruff.format]
+    66→quote-style = "double"
+    67→indent-style = "space"
+    68→skip-magic-trailing-comma = false
+    69→line-ending = "auto"
+    70→docstring-code-format = true
+    71→docstring-code-line-length = "dynamic"
+    72→
+    73→[tool.ruff.lint.flake8-tidy-imports.banned-api]
+    74→"typing.TypedDict".msg = "Use typing_extensions.TypedDict instead."
+    75→
+    76→[tool.hatch.build]
+    77→exclude = [
+    78→    "tests/",
+    79→    "docs/",
+    80→    ".github/",
+    81→    "examples.py",
+    82→    "examples/",
+    83→    ".editorconfig",
+    84→    "db/",
+    85→    "evals/",
+    86→    ".langgraph_api",
+    87→    "*.ipynb",
+    88→    ".python-version",
+    89→    ".editorconfig",
+    90→    ".venv*/**",
+    91→    "pytest.ini",
+    92→]
+    93→
+
+<system-reminder>
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+</system-reminder>

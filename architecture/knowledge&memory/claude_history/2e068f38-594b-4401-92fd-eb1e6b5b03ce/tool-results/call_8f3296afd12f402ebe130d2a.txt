@@ -1,0 +1,78 @@
+Web search results for query: "knowledge graph memory LLM agents open source 2025"
+
+I'll search for information about knowledge graph memory for LLM agents with open source projects from 2025.
+
+Links: [{"title":"The 4 Best Open-Source Multi-Agent AI Frameworks in 2025","url":"https://medium.com/coding-nexus/the-4-best-open-source-multi-agent-ai-frameworks-in-2025-81e92f23f866"},{"title":"Empowering LLM Agents with Trainable Graph Memory","url":"https://arxiv.org/abs/2511.07800"},{"title":"The paper list of \"Memory in the Age of AI Agents: A Survey\"","url":"https://github.com/Shichun-Liu/Agent-Memory-Paper-List"},{"title":"Comparing LangGraph, DSPy, CrewAI, Agno, and More","url":"https://langwatch.ai/blog/best-ai-agent-frameworks-in-2025-comparing-langgraph-dspy-crewai-agno-and-more"},{"title":"Towards the Next Generation of Agent Systems: From RAG ...","url":"https://www.vldb.org/2025/Workshops/VLDB-Workshops-2025/LLM+Graph/LLMGraph-8.pdf"},{"title":"Top 10 Open-Source AI Agent Frameworks of May 2025","url":"https://apipie.ai/docs/blog/top-10-opensource-ai-agent-frameworks-may-2025"},{"title":"Graph Memory","url":"https://docs.mem0.ai/open-source/features/graph-memory"},{"title":"AriGraph: Learning Knowledge Graph World Models with ...","url":"https://www.ijcai.org/proceedings/2025/0002.pdf"},{"title":"Cognee - LLM Observability for AI Memory with Keywords ...","url":"https://www.cognee.ai/blog/deep-dives/observability-for-semantic-workflows"},{"title":"I Needed Memory for My AI Agent and Found This ...","url":"https://pub.towardsai.net/i-needed-memory-for-my-ai-agent-and-found-this-knowledge-graph-framework-55c94880820e"}]
+
+Here are the search results for **knowledge graph memory LLM agents open source 2025**:
+
+## 📚 Academic Papers & Research
+
+### 1. **"Empowering LLM Agents with Trainable Graph Memory"** (arXiv, 2025)
+- **Link**: https://arxiv.org/abs/2511.07800
+- Introduces a novel agent-centric, trainable, multi-layered graph memory framework
+- Evaluates how context memory enhances agent performance
+
+### 2. **"Memory in the Age of AI Agents: A Survey"** - Paper List
+- **GitHub**: https://github.com/Shichun-Liu/Agent-Memory-Paper-List
+- Comprehensive collection including:
+  - **Zep**: A Temporal Knowledge Graph Architecture for Agent Memory (Feb 2025)
+  - **A-MEM**: Agentic Memory for LLM Agents (Feb 2025)
+
+### 3. **"AriGraph: Learning Knowledge Graph World Models"** (IJCAI 2025)
+- **Link**: https://www.ijcai.org/proceedings/2025/0002.pdf
+- Introduces agents that construct and update memory graphs
+- Integrates semantic and episodic memories
+
+## 🔧 Open Source Frameworks with Graph Memory
+
+### 4. **Mem0 - Graph Memory**
+- **Documentation**: https://docs.mem0.ai/open-source/features/graph-memory
+- Features entity, relationship, and timestamp extraction from conversations
+- Stores vectors and edges for knowledge graph construction
+
+### 5. **Cognee**
+- **Website**: https://www.cognee.ai/blog/deep-dives/observability-for-semantic-workflows
+- Open-source memory engine with semantic graph at its core
+- Provides Python SDK for task and workflow manipulation
+
+## 🏗️ Multi-Agent Frameworks (2025)
+
+### 6. **Best Open-Source Multi-Agent Frameworks**
+- **Article**: https://medium.com/coding-nexus/the-4-best-open-source-multi-agent-ai-frameworks-in-2025
+- Covers:
+  - **LangGraph** (from LangChain)
+  - **CrewAI**
+  - **Microsoft AutoGen**
+  - **MetaGPT**
+
+### 7. **Framework Comparisons**
+- **LangWatch Blog**: https://langwatch.ai/blog/best-ai-agent-frameworks-in-2025-comparing-langgraph-dspy-crewai-agno-and-more
+- Compares LangGraph, DSPy, CrewAI, Agno, and more
+
+### 8. **Top 10 Open-Source AI Agent Frameworks** (May 2025)
+- **Link**: https://apipie.ai/docs/blog/top-10-opensource-ai-agent-frameworks-may-2025
+- Covers AG2, LangGraph, CrewAI, OpenAI Agents SDK, and others
+
+## 🌐 Additional Resources
+
+### 9. **Temporal Knowledge Graph Framework for AI Agents**
+- **Article**: https://pub.towardsai.net/i-needed-memory-for-my-ai-agent-and-found-this-knowledge-graph-framework-55c94880820e
+- Specifically designed for AI agents
+- Builds temporal knowledge graphs instead of just storing information
+
+### 10. **VLDB Workshop Paper**
+- **Link**: https://www.vldb.org/2025/Workshops/VLDB-Workshops-2025/LLM+Graph/LLMGraph-8.pdf
+- Discusses "Towards the Next Generation of Agent Systems: From RAG..."
+- Covers Microsoft's AutoGen multi-agent framework
+
+---
+
+**Key Trends in 2025:**
+- 🧠 **Graph-based memory systems** are becoming central to LLM agent architectures
+- 🔄 **Temporal knowledge graphs** enable agents to track changes over time
+- 🔀 **Multi-agent frameworks** increasingly incorporate graph memory
+- 📖 **Trainable memory** allows agents to learn and improve their graph structures
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

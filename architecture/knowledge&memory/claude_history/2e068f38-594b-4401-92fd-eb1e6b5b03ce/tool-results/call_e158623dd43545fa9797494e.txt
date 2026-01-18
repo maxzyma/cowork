@@ -1,0 +1,61 @@
+Web search results for query: "LlamaIndex memory agents 2025 open source"
+
+I'll perform a web search for information about LlamaIndex memory agents in 2025 and open source.
+
+Links: [{}]
+
+I encountered an API rate limit error. Let me try the search again with a slightly modified approach:
+
+Links: [{"title":"Memory | LlamaIndex Python Documentation","url":"https://developers.llamaindex.ai/python/framework/module_guides/deploying/agents/memory/"},{"title":"Improved Long & Short-Term Memory for LlamaIndex Agents","url":"https://www.llamaindex.ai/blog/improved-long-and-short-term-memory-for-llamaindex-agents"},{"title":"Simple Composable Memory","url":"https://developers.llamaindex.ai/python/examples/agent/memory/composable_memory/"},{"title":"Building a Custom Multi-Turn Memory Multi-Agent System ...","url":"https://medium.com/@bravekjh/building-a-custom-multi-turn-memory-multi-agent-system-with-llamaindex-9db5f55b2b32"},{"title":"解密prompt系列55.Agent Memory的工程实现- Mem0 & ...","url":"https://www.cnblogs.com/gogoSandy/p/18921503"},{"title":"LlamaIndex Agent Memory: From Short-Term Storage to ...","url":"https://www.youtube.com/watch?v=XwUD9uXL0eg"},{"title":"解密prompt系列55.Agent Memory的工程实现- Mem0 ... - 腾讯云","url":"https://cloud.tencent.com/developer/article/2528447"},{"title":"LlamaIndex的Memory使用说明","url":"https://blog.csdn.net/puzi0315/article/details/149024317"},{"title":"Memory in LlamaIndex","url":"https://developers.llamaindex.ai/python/examples/memory/memory/"},{"title":"Building Production-Ready AI Agents with LlamaIndex and ...","url":"https://dev.to/aws/building-production-ready-ai-agents-with-llamaindex-and-amazon-bedrock-agentcore-1fm3"}]
+
+Links: [{"title":"Releases · run-llama/llama_index","url":"https://github.com/run-llama/llama_index/releases"},{"title":"Announcing Workflows 1.0: A Lightweight Framework for ...","url":"https://www.llamaindex.ai/blog/announcing-workflows-1-0-a-lightweight-framework-for-agentic-systems"},{"title":"LlamaIndex Newsletter - Looking Back on 2025","url":"https://www.llamaindex.ai/blog/llamaindex-newsletter-2025-12-30"},{"title":"Introducing llama-agents: A Powerful Framework for ...","url":"https://www.llamaindex.ai/blog/introducing-llama-agents-a-powerful-framework-for-building-production-multi-agent-ai-systems"},{"title":"LlamaIndex: From GPT Tree Index to the Future of Agentic AI","url":"https://thamizhelango.medium.com/llamaindex-from-gpt-tree-index-to-the-future-of-agentic-ai-38247fb1ec8f"},{"title":"LlamaIndex | Leading AI app building framework","url":"https://www.llamaindex.ai/llamaindex"},{"title":"LlamaIndex Newsletter 2025-08-12","url":"https://www.llamaindex.ai/blog/llamaindex-newsletter-2025-08-12"},{"title":"LlamaIndex Deep Dive: The Secret Weapon for Production ...","url":"https://skywork.ai/skypage/en/LlamaIndex-Deep-Dive-The-Secret-Weapon-for-Production-Ready-AI-in-2025/1972843578360786944"},{"title":"Top 10 Open-Source AI Agent Frameworks of May 2025","url":"https://apipie.ai/docs/blog/top-10-opensource-ai-agent-frameworks-may-2025"},{"title":"Top 5 AI Agent Frameworks for 2025: Build Smarter ...","url":"https://genfuseai.com/blog/best-ai-agent-frameworks"}]
+
+Based on the search results, here's what I found about **LlamaIndex memory agents in 2025**:
+
+## Key Findings
+
+### 🎯 **Open Source Status**
+- **LlamaIndex is fully open source**, providing developers complete control over application building
+- The core framework is free to use, with costs only coming from LLM API calls (like OpenAI)
+
+### 📈 **Major 2025 Releases & Updates**
+
+1. **Workflows 1.0 Launch** (June 2025)
+   - Lightweight framework for building complex, multi-step agentic AI applications
+   - Production-ready with improved orchestration capabilities
+
+2. **LlamaAgents Launch** (Late 2025)
+   - One-click document agent deployment product
+   - Based on the open-source Workflows library
+   - Ready-to-use deployment solution
+
+3. **Improved Memory Components** (May 2025)
+   - Enhanced long and short-term memory for agents
+   - New memory features transforming how agents retain and use context
+
+### 💾 **Memory Capabilities**
+
+**Short-Term Memory:**
+- Stores the last X messages within token limits
+- Configurable via `token_limit` and `chat_history_token_ratio` parameters
+
+**Long-Term Memory (3 Types):**
+- **StaticMemoryBlock**: No Put operations
+- **FactExtractionMemoryBlock**: Extracts facts automatically
+- **VectorMemoryBlock**: Vector-based storage
+
+**Key Features:**
+- **SimpleComposableMemory**: Inject multiple memory sources into agents
+- Memory structures persist across messages and tasks
+- Tracks objectives, notes, citations, and outcomes
+- Supports custom BaseMemory classes or create your own
+
+### 🔗 **Useful Links**
+- [Official Memory Documentation](https://developers.llamaindex.ai/python/framework/module_guides/deploying/agents/memory/)
+- [GitHub Releases](https://github.com/run-llama/llama_index/releases)
+- [Workflows 1.0 Announcement](https://www.llamaindex.ai/blog/announcing-workflows-1-0-a-lightweight-framework-for-agentic-systems)
+
+Would you like me to dive deeper into any specific aspect of LlamaIndex memory agents?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

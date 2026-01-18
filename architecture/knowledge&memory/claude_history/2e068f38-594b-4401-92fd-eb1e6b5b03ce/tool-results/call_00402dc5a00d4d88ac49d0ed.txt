@@ -1,0 +1,46 @@
+Web search results for query: "Recall.ai vector memory semantic search 2025"
+
+I'll search for information about Recall.ai's vector memory and semantic search capabilities in 2025.
+
+Links: [{"title":"Vector Database Tutorial: Build AI Semantic Search 2025","url":"https://mantraideas.com/build-semantic-search-engine-vector-database/"},{"title":"The 10 Best Semantic Search APIs in 2025","url":"https://www.shaped.ai/blog/the-10-best-semantic-search-apis-in-2025"},{"title":"Best 17 Vector Databases for 2025 [Top Picks]","url":"https://lakefs.io/blog/best-vector-databases/"},{"title":"🧠 Awesome Semantic Search Tools [2025 Edition]","url":"https://madhavkabra.github.io/top-Semantic-Search-tools/"},{"title":"Vector Databases in 2025: Top 10 Index Choices ...","url":"https://medium.com/@ThinkingLoop/d3-4-vector-databases-in-2025-top-10-index-choices-benchmarked-1bbce68e1871"},{"title":"The top 6 Vector Databases to use for AI applications in 2025","url":"https://appwrite.io/blog/post/top-6-vector-databases-2025"},{"title":"Top 8 Vector Databases for 2025: Power Your AI Projects","url":"https://www.alphamatch.ai/blog/top-vector-databases-2025"},{"title":"Vector Databases Guide: RAG Applications 2025","url":"https://dev.to/klement_gunndu_e16216829c/vector-databases-guide-rag-applications-2025-55oj"},{"title":"Best Vector Databases in 2025: A Complete Comparison ...","url":"https://www.firecrawl.dev/blog/best-vector-databases-2025"},{"title":"What's new in two: September 2025 edition","url":"https://redis.io/blog/whats-new-in-two-september-2025-edition/"}]
+
+Links: [{"title":"【AI Agent开发必读】搞懂Memory、向量库","url":"https://blog.csdn.net/coolyoung520/article/details/147552334"},{"title":"一文全解析：AI 智能体8 种常见的记忆（Memory）策略与技术 ...","url":"https://zhuanlan.zhihu.com/p/1938384459033448484"},{"title":"【AI Agent开发必读】搞懂Memory、向量库 - DeepSeek技术社区","url":"https://deepseek.csdn.net/6864b10fa6db534ba2b58fb2.html"},{"title":"动手实践：实现向量存储记忆","url":"https://apxml.com/zh/courses/langchain-production-llm/chapter-3-advanced-memory-management/practice-vector-store-memory"},{"title":"一站式AI Agent长记忆方案 - 阿里云文档","url":"https://help.aliyun.com/zh/polardb/polardb-for-postgresql/ai-agent-long-memory-solution"},{"title":"解密prompt系列55.Agent Memory的工程实现- Mem0 & ...","url":"https://www.cnblogs.com/gogoSandy/p/18921503"},{"title":"AI代理的记忆机制：向量数据库如何支撑大语言模型记忆","url":"https://www.51cto.com/article/821480.html"},{"title":"向量数据库：人工智能的长期记忆 - 腾讯云","url":"https://cloud.tencent.com/developer/article/2401655"},{"title":"内存记忆( Memory ) - LangChain 中文文档","url":"https://python.langchain.com.cn/docs/modules/memory/"},{"title":"最近很火的Hindsight，基于图谱的Agent记忆栈解耦事实与信念","url":"https://view.inews.qq.com/a/20251218A07XYO00"}]
+
+Links: [{"title":"Semantic Recall | Memory | Mastra Docs","url":"https://mastra.ai/docs/memory/semantic-recall"},{"title":"Vector Databases: Storing and Retrieving AI Memory Efficiently","url":"https://medium.com/@sateeshfrnd/vector-databases-storing-and-retrieving-ai-memory-efficiently-91a2d9542fd7"},{"title":"How Do Vector Databases Power Agentic AI's Memory and ...","url":"https://www.getmonetizely.com/articles/how-do-vector-databases-power-agentic-ais-memory-and-knowledge-systems"},{"title":"Vector Databases: The Memory Layer of Modern AI Systems","url":"https://inclusioncloud.com/insights/blog/vector-databases-enterprise-ai/"},{"title":"How AI Agents Remember Things: The Role of Vector Stores in LLM ...","url":"https://www.freecodecamp.org/news/how-ai-agents-remember-things-vector-stores-in-llm-memory/"},{"title":"Vector Store Memory in LangChain - GeeksforGeeks","url":"https://www.geeksforgeeks.org/artificial-intelligence/vector-store-memory-in-langchain/"},{"title":"Vector Databases Explained: Everything You Need to Know for AI","url":"https://www.cognee.ai/blog/fundamentals/vector-databases-how-they-work-and-why-they-matter"},{"title":"Vector Search: Navigating Recall and Performance","url":"https://opensourceconnections.com/blog/2025/02/27/vector-search-navigating-recall-and-performance/"},{"title":"The role of vector databases in generative AI applications - AWS","url":"https://aws.amazon.com/blogs/database/the-role-of-vector-datastores-in-generative-ai-applications/"}]
+
+Links: [{"title":"Recall.ai - The API for Meeting Recording","url":"https://www.recall.ai/"},{"title":"Recall - Summarize Anything, Forget Nothing.","url":"https://www.getrecall.ai/"},{"title":"Recall.ai + AssemblyAI","url":"https://www.recall.ai/partners/assemblyai"},{"title":"Recall.ai: The API to get recordings, transcripts ...","url":"https://www.ycombinator.com/companies/recall-ai"},{"title":"Welcome, Recall.ai!","url":"https://salesforceventures.com/perspectives/welcome-recall-ai/"},{"title":"Customers","url":"https://www.recall.ai/customers"},{"title":"Affinity","url":"https://www.recall.ai/customers/affinity"},{"title":"Recall.ai: Unlocking the World's Conversations","url":"https://www.youtube.com/watch?v=IGXKIL57uwc"},{"title":"UpdateAI","url":"https://www.recall.ai/customers/updateai"}]
+
+Links: [{"title":"Edo Liberty on Vector Databases for Successful Adoption of ... - Recall","url":"https://www.getrecall.ai/summary/infoq/edo-liberty-on-vector-databases-for-successful-adoption-of-generative-ai-and-llm-based-applications"},{"title":"Sam Partee on Retrieval Augmented Generation (RAG) - Recall","url":"https://www.getrecall.ai/summary/ai/sam-partee-on-retrieval-augmented-generation-rag"},{"title":"Using your repository for RAG: Learnings from GitHub Copilot Chat","url":"https://www.getrecall.ai/summary/ai/using-your-repository-for-rag-learnings-from-github-copilot-chat"},{"title":"Discover getrecall AI: A tool for managing your browser tabs | Sidi ...","url":"https://www.linkedin.com/posts/sidilemine_ai-aitools-knowledgebase-activity-7313191840847966209-trKe"},{"title":"Recall - Summarize Anything, Forget Nothing.","url":"https://www.getrecall.ai/"},{"title":"Understanding Vector Embeddings, Semantic Search and Its ...","url":"https://medium.com/@toimrank/understanding-vector-embeddings-semantic-search-and-its-implementation-d51e76c09a80"},{"title":"TheBrain 15 – Beyond the status quo of AI features…?!","url":"https://forums.thebrain.com/post/thebrain-15-%25E2%2580%2593-beyond-the-status-quo-of-ai-features%25E2%2580%25A6-13679670"},{"title":"Vector Embeddings for Semantic Search Made Easy with ... - YouTube","url":"https://www.youtube.com/watch?v=tjo9NJBmExM"},{"title":"Cursor Team: Future of Programming with AI | Lex Fridman Podcast","url":"https://www.getrecall.ai/summary/ai/cursor-team-future-of-programming-with-ai-or-lex-fridman-podcast"},{"title":"The Most Innovative Features of AI Note-Taking Apps in 2025","url":"https://unbreakablebonds101.wordpress.com/2025/11/13/the-most-innovative-features-of-ai-note-taking-apps-in-2025/"}]
+
+## Search Results for "Recall.ai vector memory semantic search 2025"
+
+Based on my search, there appear to be **two different "Recall" platforms** that might be relevant to your query:
+
+### 1. **Recall.ai** (recall.ai)
+- **Focus**: API platform for meeting recording and transcription
+- **What it does**: Provides APIs to capture recordings, transcripts, and metadata from video conferencing platforms (Zoom, Google Meet, Microsoft Teams)
+- **Use case**: B2B developer platform for conversational intelligence
+- **Recent news**: Backed by Salesforce Ventures (September 2025)
+
+### 2. **Recall** (getrecall.ai)
+- **Focus**: Personal knowledge management with AI-powered summaries
+- **What it does**: Summarizes articles, videos, podcasts, PDFs, and stores them in a searchable knowledge base
+- **Vector/semantic search**: Uses vector embeddings and semantic similarity search to enable meaning-based retrieval of saved content
+- **Features**: 500,000+ users, offers semantic search capabilities using vector databases
+
+### Key Insights from 2025:
+
+**Semantic Search & Vector Memory Trends:**
+- Vector databases are becoming the standard for AI memory systems
+- Semantic search enables finding content by meaning rather than keywords
+- Popular vector databases in 2025 include Pinecone, Weaviate, Milvus, Qdrant, and Chroma
+- Hybrid search combining vector search with traditional filters is gaining traction
+
+**If you're looking for:**
+- **Meeting intelligence/recording**: Likely recall.ai
+- **Personal knowledge management with semantic search**: Likely getrecall.ai
+
+Would you like me to search for more specific information about either of these platforms?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

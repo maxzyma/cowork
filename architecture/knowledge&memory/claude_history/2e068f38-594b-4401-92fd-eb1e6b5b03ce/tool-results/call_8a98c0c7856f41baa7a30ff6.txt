@@ -1,0 +1,5 @@
+total 0
+drwxr-xr-x@  4 magooup  staff  128 Jan  9 20:04 .
+drwxr-xr-x   5 magooup  staff  160 Jan  9 20:05 ..
+drwxr-xr-x@ 12 magooup  staff  384 Jan  9 20:04 .git
+drwxr-xr-x@  9 magooup  staff  288 Jan  9 20:04 docs

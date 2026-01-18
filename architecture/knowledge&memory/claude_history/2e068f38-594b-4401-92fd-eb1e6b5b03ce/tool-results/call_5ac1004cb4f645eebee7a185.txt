@@ -1,0 +1,6 @@
+total 0
+drwxr-xr-x   5 magooup  staff  160 Jan  9 20:05 .
+drwxr-xr-x@  7 magooup  staff  224 Jan  9 20:06 ..
+drwxr-xr-x@  4 magooup  staff  128 Jan 10 20:06 .claude
+drwxr-xr-x@ 16 magooup  staff  512 Jan  9 20:04 langmem
+drwxr-xr-x@  4 magooup  staff  128 Jan  9 20:04 omnimem

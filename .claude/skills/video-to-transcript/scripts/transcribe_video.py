@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """
-Video to Transcript Converter
+Video to Transcript Converter (Sandbox-Compatible)
 
 Converts video files to timestamped markdown transcripts using ffmpeg and OpenAI Whisper.
 Supports multiple languages and common video formats.
+
+Sandbox Environment:
+- Uses TMPDIR environment variable for temporary files (default: /tmp/claude)
+- Output files must be in allowed directories
+- May need to disable sandbox for ffmpeg access
 """
 
 import argparse
@@ -11,6 +16,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from datetime import timedelta
 from pathlib import Path
 
@@ -34,6 +40,13 @@ def check_dependencies():
         return True, None
     except ImportError:
         return False, "openai-whisper is not installed. Run: pip install openai-whisper"
+
+
+def get_temp_dir():
+    """Get temporary directory, respecting TMPDIR in sandbox."""
+    tmpdir = os.environ.get('TMPDIR', '/tmp/claude')
+    Path(tmpdir).mkdir(parents=True, exist_ok=True)
+    return tmpdir
 
 
 def extract_audio(video_path: str, audio_path: str) -> bool:
@@ -235,7 +248,22 @@ Examples:
         help="Use existing audio file instead of extracting from video"
     )
 
+    parser.add_argument(
+        "--temp-dir",
+        type=str,
+        metavar="DIR",
+        default=None,
+        help="Temporary directory for audio extraction (default: TMPDIR or /tmp/claude)"
+    )
+
     args = parser.parse_args()
+
+    # Determine temporary directory
+    if args.temp_dir:
+        temp_dir = Path(args.temp_dir)
+        temp_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        temp_dir = Path(get_temp_dir())
 
     # Check dependencies
     ok, msg = check_dependencies()
@@ -244,6 +272,12 @@ Examples:
         print("\nInstallation instructions:", file=sys.stderr)
         print("  ffmpeg: https://ffmpeg.org/download.html", file=sys.stderr)
         print("  whisper: pip install openai-whisper", file=sys.stderr)
+
+        # Suggest disabling sandbox if ffmpeg not found
+        if "ffmpeg" in msg:
+            print("\n⚠️  Sandbox detected: If ffmpeg is installed but not found,", file=sys.stderr)
+            print("   you may need to temporarily disable sandbox:", file=sys.stderr)
+            print("   Run: /sandbox", file=sys.stderr)
         sys.exit(1)
 
     # Determine paths
@@ -265,7 +299,9 @@ Examples:
             sys.exit(1)
         print(f"🎵 Using existing audio: {audio_path}")
     else:
-        audio_path = video_path.parent / f"{video_path.stem}_audio.wav"
+        # Use temp directory for audio extraction (sandbox-friendly)
+        audio_path = temp_dir / f"{video_path.stem}_audio.wav"
+        print(f"📁 Using temp directory: {temp_dir}")
         if not extract_audio(str(video_path), str(audio_path)):
             sys.exit(1)
 

@@ -1,0 +1,19 @@
+total 0
+drwxr-xr-x@ 18 magooup  staff  576 Jan  9 20:06 .
+drwxr-xr-x@  4 magooup  staff  128 Jan 10 20:06 ..
+drwxr-xr-x@  5 magooup  staff  160 Jan  9 20:06 algorithmic-art
+drwxr-xr-x@  4 magooup  staff  128 Jan  9 20:06 brand-guidelines
+drwxr-xr-x@  5 magooup  staff  160 Jan  9 20:06 canvas-design
+drwxr-xr-x@  3 magooup  staff   96 Jan  9 20:06 doc-coauthoring
+drwxr-xr-x@  8 magooup  staff  256 Jan  9 20:06 docx
+drwxr-xr-x@  4 magooup  staff  128 Jan  9 20:06 frontend-design
+drwxr-xr-x@  5 magooup  staff  160 Jan  9 20:06 internal-comms
+drwxr-xr-x@  6 magooup  staff  192 Jan  9 20:06 mcp-builder
+drwxr-xr-x@  7 magooup  staff  224 Jan  9 20:06 pdf
+drwxr-xr-x@  8 magooup  staff  256 Jan  9 20:06 pptx
+drwxr-xr-x@  6 magooup  staff  192 Jan  9 20:06 skill-creator
+drwxr-xr-x@  6 magooup  staff  192 Jan  9 20:06 slack-gif-creator
+drwxr-xr-x@  6 magooup  staff  192 Jan  9 20:06 theme-factory
+drwxr-xr-x@  5 magooup  staff  160 Jan  9 20:06 web-artifacts-builder
+drwxr-xr-x@  6 magooup  staff  192 Jan  9 20:06 webapp-testing
+drwxr-xr-x@  5 magooup  staff  160 Jan  9 20:06 xlsx

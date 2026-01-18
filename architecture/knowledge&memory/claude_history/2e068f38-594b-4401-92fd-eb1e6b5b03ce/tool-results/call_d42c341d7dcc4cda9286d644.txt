@@ -1,0 +1,54 @@
+Web search results for query: "AutoGen Microsoft memory multi-agent 2025"
+
+I'll search for information about AutoGen Microsoft memory multi-agent 2025.
+
+Links: [{"title":"AutoGen","url":"https://www.microsoft.com/en-us/research/wp-content/uploads/2025/01/WEF-2025_Leave-Behind_AutoGen.pdf"},{"title":"microsoft/autogen: A programming framework for agentic AI","url":"https://github.com/microsoft/autogen"},{"title":"Memory and RAG — AutoGen","url":"https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/memory.html"},{"title":"AutoGen Framework: Multi-Agent Orchestration and ...","url":"https://medium.com/towardsdev/autogen-framework-multi-agent-orchestration-and-complex-task-management-ccf876079bbb"},{"title":"AutoGen: A Comprehensive Review of Microsoft's Multi ...","url":"https://mgx.dev/insights/autogen-a-comprehensive-review-of-microsofts-multi-agent-conversational-framework-for-llms/8a620b4813ac4155a9f3868e954ebb11"},{"title":"Building Multiagent Workflows With Microsoft AutoGen","url":"https://thenewstack.io/building-multiagent-workflows-with-microsoft-autogen/"},{"title":"Multi‑Agent AI with GPT‑5 & AutoGen","url":"https://metadesignsolutions.com/how-to-deploy-multiagent-ai-systems-with-openais-gpt5-and-microsoft-autogen/"},{"title":"2025 Guide: CrewAI vs AutoGen for AI Agents","url":"https://kanerika.com/blogs/crewai-vs-autogen/"},{"title":"Agent with memory using Mem0 | AutoGen 0.2","url":"https://microsoft.github.io/autogen/0.2/docs/notebooks/agentchat_memory_using_mem0/"},{"title":"How to use the Microsoft Autogen framework to Build AI ...","url":"https://www.projectpro.io/article/autogen/1139"}]
+
+# Search Results: AutoGen Microsoft Memory Multi-Agent 2025
+
+Here are the top search results for your query:
+
+## Key Resources
+
+### Official Documentation & GitHub
+1. **[AutoGen GitHub Repository](https://github.com/microsoft/autogen)**
+   - Official open-source framework for creating multi-agent AI applications
+   - Agents can act autonomously or work alongside humans
+
+2. **[Memory and RAG Documentation](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/memory.html)**
+   - Official documentation on memory implementation
+   - Covers RAG (Retrieval Augmented Generation) patterns for retrieving relevant information from databases
+
+3. **[Agent with Memory using Mem0 (AutoGen 0.2)](https://microsoft.github.io/autogen/0.2/docs/notebooks/agentchat_memory_using_mem0/)**
+   - Tutorial on implementing agents with conversation memory
+   - Shows how to initialize agents and manage multi-agent conversations
+
+### Recent Articles & Reviews (2025)
+
+4. **[AutoGen: A Comprehensive Review](https://mgx.dev/insights/autogen-a-comprehensive-review-of-microsofts-multi-agent-conversational-framework-for-llms/8a620b4813ac4155a9f3868e954ebb11)** - Dec 9, 2025
+   - In-depth review of Microsoft's multi-agent framework
+
+5. **[Building Multiagent Workflows With Microsoft AutoGen](https://thenewstack.io/building-multiagent-workflows-with-microsoft-autogen/)** - Oct 29, 2025
+   - Guide on setting up agents with different roles (generating ideas, critiquing, etc.)
+
+6. **[AutoGen Framework: Multi-Agent Orchestration](https://medium.com/towardsdev/autogen-framework-multi-agent-orchestration-and-complex-task-management-ccf876079bbb)** - Dec 28, 2025
+   - Covers agentic workflows as a first-class architectural concern
+
+7. **[2025 Guide: CrewAI vs AutoGen for AI Agents](https://kanerika.com/blogs/crewai-vs-autogen/)** - Aug 21, 2025
+   - Comparison between different multi-agent frameworks
+
+8. **[Multi-Agent AI with GPT-5 & AutoGen](https://metadesignsolutions.com/how-to-deploy-multiagent-ai-systems-with-openais-gpt5-and-microsoft-autogen/)** - Jul 4, 2025
+   - Guide on deploying multi-agent systems with GPT-5 and AutoGen
+
+## Summary
+AutoGen is Microsoft's open-source framework for building **multi-agent AI systems** with memory capabilities. The framework supports:
+- Autonomous agent operation
+- Human-in-the-loop collaboration
+- RAG patterns for knowledge retrieval
+- Memory management across conversations
+- Complex multi-agent workflows
+
+Would you like me to search for more specific information about any particular aspect of AutoGen's memory implementation or multi-agent capabilities?
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

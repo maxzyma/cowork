@@ -1,0 +1,453 @@
+     1→# OmniMem 记忆系统设计文档
+     2→
+     3→> **文档说明**
+     4→> 本文档详细阐述了 OmniMem 系统的核心设计理念、整体架构、关键特性（如多租户、时间旅行、不可变性）以及系统边界。它是理解整个系统宏观结构和设计决策的入口。
+     5→>
+     6→> **关联文档**：
+     7→> - [STORAGE.md](STORAGE.md): 深入了解具体的存储层架构设计。
+     8→> - [SEARCH.md](SEARCH.md): 深入了解检索系统的具体实现机制。
+     9→
+    10→## 1. 系统概述
+    11→
+    12→OmniMem 是一个服务于 LLM、Agent 和各类业务的通用记忆系统，提供灵活高效的记忆存储与检索能力。它不仅仅是一个向量数据库，而是一个完整的**记忆生命周期管理系统**，解决了记忆的版本控制、多租户隔离和混合检索问题。
+    13→
+    14→### 1.1 核心特性
+    15→
+    16→- **多租户隔离**：原生支持租户、用户、应用、Agent、会话等多级正交隔离。
+    17→- **时间截面 (Time Travel)**：支持查询任意历史时间点的记忆状态，像 Git 一样管理记忆版本。
+    18→- **混合检索 (Hybrid Search)**：融合了向量语义检索 (Semantic)、关键词检索 (Keyword) 和结构化过滤 (Metadata Filtering)。
+    19→- **不可变记录 (Immutability)**：采用 Append-only 模式，记录一旦写入永不修改，保证数据的绝对安全和可追溯性。
+    20→
+    21→### 1.2 技术架构
+    22→
+    23→OmniMem 采用 **"One Logic, Multi Storage"** 架构，将统一的逻辑模型分发到不同的存储后端以发挥各自优势。
+    24→
+    25→```
+    26→┌─────────────────────────────────────────────────────────────────┐
+    27→│                        OmniMem Client                           │
+    28→├─────────────────────────────────────────────────────────────────┤
+    29→│                                                                 │
+    30→│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
+    31→│  │   Search    │  │ Operations  │  │  Pipeline   │             │
+    32→│  │   Engine    │  │    Layer    │  │   Engine    │             │
+    33→│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘             │
+    34→│         │                │                │                     │
+    35→│  ┌──────┴────────────────┴────────────────┴──────┐             │
+    36→│  │              Index Synchronizer               │             │
+    37→│  └──────┬────────────────┬────────────────┬──────┘             │
+    38→│         │                │                │                     │
+    39→├─────────┼────────────────┼────────────────┼─────────────────────┤
+    40→│         ▼                ▼                ▼                     │
+    41→│  ┌───────────┐    ┌───────────┐    ┌───────────┐    ┌────────┐ │
+    42→│  │  MongoDB  │    │PostgreSQL │    │Elastics-  │    │ Kafka  │ │
+    43→│  │ (Storage) │    │ (Vector)  │    │  search   │    │(Async) │ │
+    44→│  └───────────┘    └───────────┘    └───────────┘    └────────┘ │
+    45→│    完整存储         向量索引         关键词索引       异步处理   │
+    46→│  Source of Truth   Semantic Search   Keyword Search              │
+    47→└─────────────────────────────────────────────────────────────────┘
+    48→```
+    49→
+    50→### 1.3 存储职责分工
+    51→
+    52→| 组件 | 角色 | 核心职责 | 数据特点 |
+    53→| :--- | :--- | :--- | :--- |
+    54→| **MongoDB** | **主存储** | **数据源 (Source of Truth)**<br>存储完整的 Memory 对象和所有历史版本。 | • 完整 JSON 数据<br>• 包含历史记录 (`record_id`)<br>• 1 Memory : 1 Document |
+    55→| **PostgreSQL** | **向量索引** | **语义召回 (Semantic Search)**<br>使用 `pgvector` 存储 Embedding，负责语义相似度匹配。 | • 仅存最新版本 (`is_latest=True`)<br>• 1 Memory : N 向量记录 (支持多字段向量化)<br>• 高度优化的扁平表结构 |
+    56→| **Elasticsearch**| **综合索引** | **全文检索 & 过滤 (Keyword Search)**<br>负责关键词搜索和复杂的结构化字段过滤。 | • 仅存最新版本<br>• 动态类型后缀 (如 `age__long`) 解决 Mapping 冲突<br>• 1 Memory : 1 Document |
+    57→
+    58→---
+    59→
+    60→## 2. 核心设计理念
+    61→
+    62→### 2.1 双 ID 设计与版本控制
+    63→
+    64→每条记忆使用双 ID 标识，区分逻辑记忆点和物理记录：
+    65→
+    66→| ID | 名称 | 含义 | 特性 |
+    67→|----|------|------|------|
+    68→| `memory_id` | 记忆点 ID | 代表一个逻辑记忆概念 | 同一记忆点所有版本共享 |
+    69→| `record_id` | 记录 ID | 每条物理记录的唯一标识 | 每次更新产生新 record_id |
+    70→
+    71→```
+    72→Memory Point (memory_id = "mem_001")
+    73→│
+    74→├── Record (record_id="rec_001", version=ts1, is_latest=false) ← 初始创建
+    75→│
+    76→├── Record (record_id="rec_002", version=ts2, is_latest=false) ← 第一次更新
+    77→│
+    78→└── Record (record_id="rec_003", version=ts3, is_latest=true)  ← 当前最新
+    79→```
+    80→
+    81→### 2.2 不可变记录原则
+    82→
+    83→**核心原则：一条记录写入后永不修改**
+    84→
+    85→- ✅ **创建记忆** → 新 memory_id + 新 record_id
+    86→- ✅ **更新记忆** → 原 memory_id + 新 record_id + 新 version (Append 模式)
+    87→- ✅ **删除记忆** → 删除整个记忆点（memory_id 下所有记录）
+    88→- ❌ **直接修改** → 禁止直接修改已有记录
+    89→
+    90→### 2.3 时间截面能力
+    91→
+    92→支持三种时间维度的查询：
+    93→
+    94→1.  **获取最新版本**：默认行为，通过 `is_latest=true` 快速过滤。
+    95→2.  **获取指定版本**：通过 `memory_id + version` 定位。
+    96→3.  **获取时间点快照**：通过 `memory_id + created_time <= target_time` 获取该时间点的状态。
+    97→
+    98→---
+    99→
+   100→## 3. 数据模型设计
+   101→
+   102→### 3.1 Memory 主模型
+   103→
+   104→`Memory` 是数据流转的基本单元。
+   105→
+   106→```python
+   107→@dataclass
+   108→class Memory:
+   109→    # ===== 标识与版本 =====
+   110→    memory_id: str
+   111→    record_id: str
+   112→    version: int                  # 纳秒级时间戳
+   113→    is_latest: bool
+   114→    
+   115→    # ===== 隔离域 =====
+   116→    scope: Scope
+   117→    
+   118→    # ===== 核心内容 =====
+   119→    content: Content              # 统一内容容器（文本 + 数据 + Schema）
+   120→    metadata: dict[str, Any]      # 用户自定义元数据
+   121→    type: MemoryType
+   122→    
+   123→    # ===== 关联与索引 =====
+   124→    sources: list[SourceReference] # 来源追踪
+   125→    index_hint: IndexHint          # 索引策略配置
+   126→    
+   127→    # ===== 时间戳 =====
+   128→    created_time: datetime
+   129→    event_time: datetime | None
+   130→    valid_time_from: datetime | None = None  # 有效时间起点（闭区间）
+   131→    valid_time_to: datetime | None = None    # 有效时间终点（闭区间）
+   132→```
+   133→
+   134→### 3.2 Scope 多维正交隔离
+   135→
+   136→Scope 由 **6 个预定义维度** + **自定义命名空间** 组成，所有维度**相互正交**，无层级关系。这意味着你可以随意组合查询（例如"查询 Tenant A 下所有 Agent B 的记忆"）。
+   137→
+   138→```python
+   139→@dataclass
+   140→class Scope:
+   141→    tenant_id: str | None = None
+   142→    user_id: str | None = None
+   143→    app_id: str | None = None
+   144→    group_id: str | None = None
+   145→    agent_id: str | None = None
+   146→    run_id: str | None = None
+   147→    namespace: dict[str, str] | None = None  # 自定义维度 {"project": "p1", "env": "prod"}
+   148→```
+   149→
+   150→**正交设计说明：**
+   151→
+   152→```
+   153→┌─────────────────────────────────────────────────────────────────┐
+   154→│                    Scope 多维正交空间                            │
+   155→├─────────────────────────────────────────────────────────────────┤
+   156→│                                                                  │
+   157→│   预定义维度（6个）                 自定义维度（namespace）       │
+   158→│   ┌─────────────┐                  ┌─────────────┐              │
+   159→│   │ tenant_id   │                  │ project     │              │
+   160→│   ├─────────────┤                  ├─────────────┤              │
+   161→│   │ user_id     │                  │ module      │              │
+   162→│   ├─────────────┤    ×    ×    ×   ├─────────────┤              │
+   163→│   │ app_id      │                  │ env         │              │
+   164→│   ├─────────────┤                  ├─────────────┤              │
+   165→│   │ group_id    │                  │ ...         │              │
+   166→│   ├─────────────┤                  └─────────────┘              │
+   167→│   │ agent_id    │                                               │
+   168→│   ├─────────────┤                                               │
+   169→│   │ run_id      │                                               │
+   170→│   └─────────────┘                                               │
+   171→│                                                                  │
+   172→│   所有维度相互正交，可任意组合过滤                                │
+   173→│                                                                  │
+   174→└─────────────────────────────────────────────────────────────────┘
+   175→```
+   176→
+   177→### 3.3 IndexHint 与灵活索引
+   178→
+   179→`IndexHint` 允许开发者精细控制 `data` 和 `metadata` 中的字段如何参与向量化和全文检索，而无需修改代码。
+   180→
+   181→*   **`vector_concat_fields`**：将指定字段（如标题、标签）拼接到主文本一起向量化，增强语义。
+   182→*   **`vector_fields`**：将指定字段（如摘要、评论）**独立向量化**，实现多路召回。
+   183→*   **路径语法**：支持 `data.items[*].desc` 语法，可深入 JSON 数组内部提取字段。
+   184→
+   185→---
+   186→
+   187→## 4. 存储层实现细节
+   188→
+   189→### 4.1 MongoDB (主存储)
+   190→
+   191→MongoDB 存储完整的 Memory 对象，是系统的 **Source of Truth**。为了优化查询，部分嵌套结构在存储时会被**扁平化**。
+   192→
+   193→**存储结构示例 (`memories` collection)**:
+   194→
+   195→```json
+   196→{
+   197→  "_id": "...",
+   198→  "memory_id": "mem_001",
+   199→  "record_id": "rec_003",
+   200→  "is_latest": true,
+   201→  
+   202→  // Scope 扁平化，便于建立复合索引
+   203→  "scope_tenant_id": "tenant_001",
+   204→  "scope_user_id": "user_001",
+   205→  "scope_tags": ["ns.project:omniweave", "ns.env:prod"], // Namespace 转换为 tags
+   206→  
+   207→  // Content 扁平化
+   208→  "text": "这是一段纯文本...",
+   209→  "data": { "status": "pending", "priority": 5 },
+   210→  
+   211→  "metadata": { "author": "user1", "tags": ["ai", "ml"] },
+   212→  
+   213→  "created_time": "2025-01-15T10:30:00Z"
+   214→}
+   215→```
+   216→
+   217→### 4.2 PostgreSQL (向量索引)
+   218→
+   219→PostgreSQL 使用 `pgvector` 扩展存储 Embedding。为了支持多字段向量化，采用 **1 Memory : N Records** 的设计。
+   220→
+   221→**表结构关键字段 (`memory_vector_index`)**:
+   222→
+   223→| 字段 | 说明 |
+   224→|------|------|
+   225→| `memory_id` | 逻辑 ID |
+   226→| `field_name` | **向量来源标识**。例如 `text` (主文本), `data.summary`, `metadata.notes`。`(memory_id, field_name)` 构成唯一约束。 |
+   227→| `embedding` | 向量数据 (vector类型) |
+   228→| `scope_*` | 扁平化的 Scope 字段，用于在向量检索时进行**前置/后置过滤**。 |
+   229→
+   230→**多向量记录示例**:
+   231→一条 Memory 可能产生多条记录：
+   232→1. `field_name="text"`: 主文本 + 标题 + 标签 的向量。
+   233→2. `field_name="data.summary"`: 摘要字段的独立向量。
+   234→
+   235→### 4.3 Elasticsearch (综合索引)
+   236→
+   237→Elasticsearch 负责全文检索和结构化过滤。为了解决 NoSQL 数据进入强类型 ES 时的 **Mapping Explosion** 问题，OmniMem 引入了 **动态类型后缀 (Type Suffixing)** 机制。
+   238→
+   239→**动态类型后缀机制**:
+   240→Python 的弱类型字段在写入 ES 前会自动添加后缀，以确定其在 ES 中的类型：
+   241→
+   242→| Python 类型 | ES 字段名示例 | ES 类型 |
+   243→|-------------|---------------|---------|
+   244→| `int` | `age__long` | `long` |
+   245→| `str` (精确) | `status__keyword` | `keyword` |
+   246→| `str` (全文) | `content__text` | `text` (分词) |
+   247→| `list[dict]` | `items__nested` | `nested` |
+   248→
+   249→**ES 文档示例**:
+   250→```json
+   251→{
+   252→  "_id": "mem_001", // 等于 memory_id
+   253→  "text": "这是一段纯文本...",
+   254→  
+   255→  // 自动添加后缀
+   256→  "priority__long": 5,
+   257→  "status__keyword": "pending",
+   258→  "tags__keyword": ["ai", "ml"],
+   259→  "summary__text": "这是摘要内容..." // 由 index_hint.fulltext_fields 指定
+   260→}
+   261→```
+   262→
+   263→---
+   264→
+   265→## 5. 操作流程
+   266→
+   267→### 5.1 创建记忆 (Create)
+   268→
+   269→创建过程涉及生成唯一标识、持久化存储以及同步建立多维索引。
+   270→
+   271→```
+   272→┌─────────────────────────────────────────────────────────────┐
+   273→│                      Create Memory                          │
+   274→├─────────────────────────────────────────────────────────────┤
+   275→│                                                             │
+   276→│  1. 初始化阶段                                              │
+   277→│     ├── 生成 memory_id, record_id                           │
+   278→│     └── 构建 Memory 对象 (version=now, is_latest=true)      │
+   279→│                                                             │
+   280→│  2. MongoDB 写入 (Source of Truth)                          │
+   281→│     └── 插入完整记录 (is_latest=true)                       │
+   282→│                                                             │
+   283→│  3. 建立索引 (Index Sync)                                   │
+   284→│     ├── PostgreSQL: 提取 vector_fields -> 插入向量记录       │
+   285→│     └── Elasticsearch: 添加类型后缀 -> 插入文档 (_id=mem_id) │
+   286→│                                                             │
+   287→└─────────────────────────────────────────────────────────────┘
+   288→```
+   289→
+   290→### 5.2 更新记忆 (Update)
+   291→
+   292→由于是不可变记录，更新实际上是 **"Append New + Update Pointer"**，保证历史版本不被篡改。
+   293→
+   294→```
+   295→┌─────────────────────────────────────────────────────────────┐
+   296→│                      Update Memory                          │
+   297→├─────────────────────────────────────────────────────────────┤
+   298→│                                                             │
+   299→│  1. 准备阶段                                                │
+   300→│     ├── 生成新 record_id, version                           │
+   301→│     └── 继承原 memory_id                                    │
+   302→│                                                             │
+   303→│  2. MongoDB 原子操作 (Transaction)                          │
+   304→│     ├── 将旧记录标记为 is_latest=false                      │
+   305→│     └── 插入新记录 is_latest=true                           │
+   306→│                                                             │
+   307→│  3. 刷新索引 (Overwrite)                                    │
+   308→│     ├── PostgreSQL: 删除旧 memory_id 记录 -> 插入新向量      │
+   309→│     └── Elasticsearch: 直接覆盖文档 (_id=memory_id)          │
+   310→│                                                             │
+   311→└─────────────────────────────────────────────────────────────┘
+   312→```
+   313→
+   314→### 5.3 删除记忆 (Delete)
+   315→
+   316→删除操作会彻底移除该记忆点及其所有历史版本（根据设计策略，也可以仅标记删除，但目前设计为物理删除以释放空间）。
+   317→
+   318→```
+   319→┌─────────────────────────────────────────────────────────────┐
+   320→│                      Delete Memory                          │
+   321→├─────────────────────────────────────────────────────────────┤
+   322→│                                                             │
+   323→│  1. 接收请求                                                │
+   324→│     └── 指定 target_memory_id                               │
+   325→│                                                             │
+   326→│  2. 清理主存储 (MongoDB)                                    │
+   327→│     └── 删除 memory_id 下所有历史版本记录                    │
+   328→│                                                             │
+   329→│  3. 清理索引 (Index Cleanup)                                │
+   330→│     ├── PostgreSQL: 删除 memory_id 对应的所有向量记录        │
+   331→│     └── Elasticsearch: 删除 _id=memory_id 的文档             │
+   332→│                                                             │
+   333→└─────────────────────────────────────────────────────────────┘
+   334→```
+   335→
+   336→## 6. 历史版本与时间旅行
+   337→
+   338→由于 OmniMem 采用不可变记录设计（Immutable Records），系统天然支持完整的历史回溯和"时间旅行"查询。
+   339→
+   340→### 6.1 历史查询接口
+   341→
+   342→以下是针对历史版本的常用查询方法。这些操作**仅针对 MongoDB**（Source of Truth），因为索引层（PostgreSQL/ES）仅保持最新状态。
+   343→
+   344→#### 6.1.1 获取指定记忆的所有历史版本
+   345→
+   346→```python
+   347→def get_memory_history(memory_id: str, limit: int = 20) -> list[Memory]:
+   348→    """
+   349→    获取指定 memory_id 的变更历史，按时间倒序排列。
+   350→    """
+   351→    return mongo.find(
+   352→        filter={"memory_id": memory_id},
+   353→        sort=[("version", -1)],
+   354→        limit=limit
+   355→    )
+   356→```
+   357→
+   358→#### 6.1.2 获取指定时间点的记忆状态（Time Travel）
+   359→
+   360→查询某条记忆在特定时间点（`target_time`）的状态。
+   361→
+   362→```python
+   363→def get_memory_at_time(memory_id: str, target_time: datetime) -> Memory | None:
+   364→    """
+   365→    获取 memory_id 在 target_time 这一刻的状态。
+   366→    逻辑：找到该时刻之前（created_time <= target_time）创建的最后一个版本。
+   367→    """
+   368→    return mongo.find_one(
+   369→        filter={
+   370→            "memory_id": memory_id,
+   371→            "created_time": {"$lte": target_time}
+   372→        },
+   373→        sort=[("created_time", -1)]  # 找离该时间点最近的一次记录
+   374→    )
+   375→```
+   376→
+   377→#### 6.1.3 恢复/回滚到指定版本
+   378→
+   379→将记忆回滚到指定的 `record_id` 版本。本质上是一次新的 Update 操作，将旧版本内容作为新版本插入。
+   380→
+   381→```python
+   382→def revert_to_record(memory_id: str, target_record_id: str) -> Memory:
+   383→    """
+   384→    回滚操作：
+   385→    1. 读取 target_record_id 的内容
+   386→    2. 创建新 record (is_latest=True)
+   387→    3. 将当前 latest 标记为 False
+   388→    """
+   389→    old_record = mongo.find_one({"record_id": target_record_id})
+   390→    if not old_record:
+   391→        raise ValueError("Record not found")
+   392→        
+   393→    # 创建新版本，内容复制自旧版本
+   394→    return update_memory(memory_id, new_content=old_record.content) 
+   395→```
+   396→
+   397→## 7. 项目目录结构
+   398→
+   399→以下是 `src/omnimem` 模块的目录结构，旨在实现高内聚低耦合，并严格分离逻辑层与存储层。
+   400→
+   401→```text
+   402→src/omnimem/
+   403→├── __init__.py          # 导出核心组件 (Client, etc.)
+   404→├── client/              # [Facade] Client 模块
+   405→│   ├── __init__.py
+   406→│   └── client.py        # [Facade] OmniMemClient 高层入口，封装复杂操作
+   407→│
+   408→├── models/              # [Domain] 核心数据模型 (Pydantic/Dataclasses)
+   409→│   ├── __init__.py
+   410→│   ├── base.py          # 基础模型类
+   411→│   ├── memory.py        # Memory, Content, SourceReference 定义
+   412→│   ├── scope.py         # Scope, Namespace 定义
+   413→│   ├── filter.py        # SearchQuery, SearchFilters, Filter DSL 定义
+   414→│   └── index.py         # IndexHint 定义
+   415→│
+   416→├── operations/          # [Logic] 核心业务逻辑层 (CRUD, Versioning)
+   417→│   ├── __init__.py
+   418→│   ├── manager.py       # MemoryManager: 协调 Storage 和 Index
+   419→│   └── time_travel.py   # 历史版本回溯与恢复逻辑
+   420→│
+   421→├── storage/             # [Adapter] 物理存储适配层
+   422→│   ├── __init__.py
+   423→│   ├── base.py          # StorageProtocol 抽象基类
+   424→│   ├── mongodb.py       # MongoDB 实现 (Source of Truth)
+   425→│   ├── postgres.py      # PostgreSQL/pgvector 实现 (Vector Index)
+   426→│   ├── elasticsearch.py # Elasticsearch 实现 (Keyword Index)
+   427→│   └── factory.py       # 存储实例工厂
+   428→│
+   429→├── search/              # [Service] 检索服务层
+   430→│   ├── __init__.py
+   431→│   ├── engine.py        # SearchEngine: 执行混合检索策略
+   432→│   ├── fusion.py        # RRF (Reciprocal Rank Fusion) 融合算法
+   433→│   └── query_builder.py # 将通用 Filter DSL 转换为各存储的查询语法
+   434→│
+   435→└── pipeline/            # [Pipeline] 索引同步与处理流水线
+   436→    ├── __init__.py
+   437→    └── synchronizer.py  # IndexSynchronizer: 负责将变更同步到 PG/ES
+   438→```
+   439→
+   440→---
+   441→
+   442→> **📚 更多细节请参阅子文档：**
+   443→> - [STORAGE.md](./STORAGE.md) - 存储架构设计总览
+   444→> - [STORAGE_MONGODB.md](./STORAGE_MONGODB.md) - MongoDB 存储模型详情
+   445→> - [STORAGE_POSTGRESQL.md](./STORAGE_POSTGRESQL.md) - PostgreSQL 向量索引详情
+   446→> - [STORAGE_ELASTICSEARCH.md](./STORAGE_ELASTICSEARCH.md) - Elasticsearch 倒排索引详情
+   447→
+   448→---
+   449→
+
+<system-reminder>
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+</system-reminder>

@@ -1,0 +1,44 @@
+Web search results for query: "Zep temporal knowledge graph memory agents 2025"
+
+Links: [{"title":"Zep: A Temporal Knowledge Graph Architecture for Agent ...","url":"https://arxiv.org/abs/2501.13956"},{"title":"ZEP:ATEMPORAL KNOWLEDGE GRAPH ARCHITECTURE ...","url":"https://blog.getzep.com/content/files/2025/01/ZEP__USING_KNOWLEDGE_GRAPHS_TO_POWER_LLM_AGENT_MEMORY_2025011700.pdf"},{"title":"Zep: A Temporal Knowledge Graph Architecture for Agent ...","url":"https://hub.baai.ac.cn/paper/043747d3-ea7a-4440-a6cc-acc45a220379"},{"title":"How Zep Works: A Visual Guide to Knowledge Graphs for AI ...","url":"https://blog.getzep.com/a-visual-guide-to-knowledge-graphs-for-ai-agents/"},{"title":"Zep: A Temporal Knowledge Graph Architecture for Agent ...","url":"https://blog.csdn.net/Together_CZ/article/details/148225775"},{"title":"I Needed Memory for My AI Agent and Found This ...","url":"https://pub.towardsai.net/i-needed-memory-for-my-ai-agent-and-found-this-knowledge-graph-framework-55c94880820e"},{"title":"Zep: Temporal Knowledge Graph Architecture","url":"https://www.emergentmind.com/topics/zep-a-temporal-knowledge-graph-architecture"},{"title":"[Literature Review] Zep: A Temporal Knowledge Graph ...","url":"https://www.themoonlight.io/en/review/zep-a-temporal-knowledge-graph-architecture-for-agent-memory"},{"title":"Zep: Temporal Knowledge Graph for Agent Memory","url":"https://www.linkedin.com/posts/yogeshparte_zep-a-temporal-knowledge-graph-architecture-activity-7301030878753771520-Y7t6"},{"title":"Knowledge Graphs in Agent Memory.md","url":"https://github.com/heathersherry/Knowledge-Graph-Tutorials-and-Papers/blob/master/topics/Knowledge%2520Graphs%2520in%2520Agent%2520Memory.md"}]
+
+# Search Results: Zep Temporal Knowledge Graph Memory Agents 2025
+
+## Key Findings
+
+### 📄 **Main Research Paper**
+**Title:** "Zep: A Temporal Knowledge Graph Architecture for Agent Memory"
+- **arXiv Link:** https://arxiv.org/abs/2501.13956
+- **Authors:** P. Rasmussen et al.
+- **Published:** January 2025
+- **Citations:** 48+ citations
+- **Key Achievement:** Outperforms MemGPT (current state-of-the-art) in Deep Memory Retrieval (DMR) benchmarks
+
+### 🔍 **What is Zep?**
+Zep is a **novel memory layer service** designed specifically for AI agents that uses **temporal knowledge graphs** to enhance long-term memory capabilities.
+
+### 💡 **Key Features**
+1. **Temporal Knowledge Graph Architecture** - Tracks information over time
+2. **Semantic Entity Extraction** - Identifies and extracts meaningful entities
+3. **Cypher Query Storage** - Uses graph database queries
+4. **Hierarchical Memory Organization** - Organizes memory in layers
+5. **Real-time Data Updates** - Supports dynamic memory updates
+
+### 📊 **Performance**
+- **94.8% Accuracy** - Significantly outperforms MemGPT
+- **Deep Memory Retrieval (DMR)** - Superior performance on memory retrieval benchmarks
+- **Advanced AI Reasoning** - Enables more sophisticated agent decision-making
+
+### 🌐 **Additional Resources**
+- **Official PDF:** Available on blog.getzep.com
+- **Visual Guide:** "How Zep Works: A Visual Guide to Knowledge Graphs for AI Agents"
+- **GitHub:** Listed in Knowledge Graph tutorials and papers collection
+- **Community Coverage:** Discussed on TowardsAI, LinkedIn, and various AI research platforms
+
+### 🎯 **Core Problem Solved**
+The research addresses the fundamental issue that AI agents often fail not because the underlying model is inadequate, but because they lack proper context and long-term memory capabilities beyond simple chat history.
+
+This appears to be a significant advancement in AI agent memory systems for 2025!
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.
