@@ -224,32 +224,278 @@ while not task_completed:
 
 ---
 
-## 五、Agent 框架的主动能力对比
+## 五、Agent 框架的自驱动架构对比
 
-### 5.1 对比表格（聚焦主动性）
+### 5.1 自驱动架构的核心组件
 
-| 框架 | 被动/主动 | 触发机制 | 推送能力 | 记忆系统 | 长期运行 | HITL 支持 |
-|------|----------|---------|---------|---------|---------|-----------|
-| **LangChain Agent** | 被动 | 用户请求 | ❌ | Memory Class | ⚠️ 需自建 | ✅ |
-| **AutoGPT** | ✅ 主动 | 循环触发 | ⚠️ 仅日志 | ✅ 向量存储 | ✅ | ❌ |
-| **BabyAGI** | ✅ 主动 | 任务列表驱动 | ⚠️ 仅日志 | ✅ 任务记忆 | ✅ | ❌ |
-| **MemGPT** | ⚠️ 半主动 | 对话+记忆检索 | ❌ | ✅ 分层记忆 | ✅ | ✅ |
-| **CrewAI** | ⚠️ 半主动 | 任务分配 | ❌ | ✅ 角色记忆 | ✅ | ✅ |
-| **Microsoft AutoGen** | ⚠️ 半主动 | 对话触发 | ❌ | ⚠️ 对话历史 | ✅ | ✅ |
-| **Clio** | ✅ 主动 | 任务启动时 | ✅ Proposal | ⚠️ 单次任务 | ❌ | ✅ |
+一个真正的"自驱动架构"应该包含以下核心组件：
 
-### 5.2 核心发现
+```
+┌────────────────────────────────────────────────────────┐
+│              自驱动 AI Agent 架构                        │
+├────────────────────────────────────────────────────────┤
+│                                                         │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  1. 自主循环引擎 (Autonomous Loop Engine)        │   │
+│  │     - 持续运行的主循环                           │   │
+│  │     - 不依赖外部触发                             │   │
+│  │     - 自动判断何时执行下一步                     │   │
+│  └─────────────────────────────────────────────────┘   │
+│                        ↓                                │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  2. 内部状态管理 (Internal State Management)     │   │
+│  │     - 维护当前状态、目标、历史                   │   │
+│  │     - 状态持久化                                 │   │
+│  │     - 上下文恢复能力                             │   │
+│  └─────────────────────────────────────────────────┘   │
+│                        ↓                                │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  3. 自主决策机制 (Autonomous Decision Making)    │   │
+│  │     - 基于状态和记忆决定下一步                   │   │
+│  │     - 不依赖人类指令                             │   │
+│  │     - 推理+规划能力                              │   │
+│  └─────────────────────────────────────────────────┘   │
+│                        ↓                                │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  4. 记忆驱动引擎 (Memory-Driven Engine)          │   │
+│  │     - 从记忆中检索相关信息                       │   │
+│  │     - 记忆影响决策                               │   │
+│  │     - 经验积累与学习                             │   │
+│  └─────────────────────────────────────────────────┘   │
+│                        ↓                                │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  5. 长期目标导向 (Long-term Goal Orientation)    │   │
+│  │     - 维护长期目标                               │   │
+│  │     - 将长期目标分解为短期行动                   │   │
+│  │     - 持续评估进度                               │   │
+│  └─────────────────────────────────────────────────┘   │
+│                                                         │
+└────────────────────────────────────────────────────────┘
+```
+
+### 5.2 主流框架自驱动架构对比
+
+| 框架 | 自主循环 | 状态管理 | 自主决策 | 记忆驱动 | 长期目标 | 架构完整性 |
+|------|:-------:|:-------:|:-------:|:-------:|:-------:|:---------:|
+| **AutoGPT** | ✅ while循环 | ✅ JSON状态 | ✅ LLM决策 | ✅ 向量存储 | ✅ 任务目标 | ⭐⭐⭐⭐ |
+| **BabyAGI** | ✅ 任务循环 | ✅ 任务列表 | ✅ 优先级排序 | ✅ 执行历史 | ✅ 任务完成 | ⭐⭐⭐⭐ |
+| **MemGPT** | ⚠️ 对话驱动 | ✅ 分层记忆 | ✅ 内存控制器 | ✅⭐⭐⭐ 分层记忆 | ❌ 无长期目标 | ⭐⭐⭐ |
+| **Voyager** | ✅ 游戏循环 | ✅ 技能库 | ✅ 自主规划 | ✅⭐⭐⭐⭐ 情景记忆 | ✅ 探索成长 | ⭐⭐⭐⭐⭐ |
+| **CrewAI** | ⚠️ 任务驱动 | ⚠️ 角色状态 | ⚠️ 任务分配 | ⚠️ 角色记忆 | ❌ 单次任务 | ⭐⭐ |
+| **LangChain Agent** | ❌ 单次执行 | ❌ 无状态 | ❌ 用户驱动 | ⚠️ Memory类 | ❌ 无 | ⭐ |
+| **Clio** | ⚠️ 任务启动 | ❌ 单次任务 | ✅ 提案生成 | ❌ 无 | ❌ 单次 | ⭐⭐ |
+
+### 5.3 深度分析：各框架的自驱动机制
+
+#### AutoGPT：任务型自主循环
+
+```python
+# AutoGPT 的自主循环架构
+class AutonomousGPT:
+    def run(self):
+        while not task_completed:  # ← 自主循环引擎
+            # 1. 检索相关记忆
+            context = self.memory.search(current_task)
+
+            # 2. 自主决策下一步
+            thought = self.llm.decide_next_action(
+                current_state=context,
+                goal=goal,
+                history=history
+            )
+
+            # 3. 执行行动
+            result = self.execute(thought.action)
+
+            # 4. 更新内部状态
+            self.state.update(result)
+
+            # 5. 存储经验
+            self.memory.store(result)
+
+            # 6. 判断是否完成
+            task_completed = self.evaluate(goal, state)
+```
+
+**自驱动特点**：
+- ✅ 完整的自主循环（while loop）
+- ✅ 内部状态管理（JSON 文件持久化）
+- ✅ 记忆驱动决策（向量检索）
+- ⚠️ **局限**：目标是"完成特定任务"，不是"长期运营"
+
+#### Voyager：长期自主探索（最接近 PRD）
+
+```python
+# Voyager 的长期自主架构
+class VoyagerAgent:
+    def run(self):
+        while True:  # ← 无限循环（长期运营）
+            # 1. 评估当前状态和长期目标
+            current_quest = self.quest_manager.decide_next_quest(
+                skills=self.skill_library,  # ← 记忆驱动
+                exploration_progress=self.exploration_map
+            )
+
+            # 2. 自主规划子任务
+            sub_tasks = self.planner.plan(current_quest)
+
+            # 3. 执行并学习
+            for task in sub_tasks:
+                action = self.decide_action(task)
+                result = self.env.execute(action)
+
+                # 4. 积累技能（记忆）
+                if result.success:
+                    self.skill_library.learn(action)  # ← 记忆驱动
+
+            # 5. 反思并设定新目标
+            if current_quest.completed:
+                self.quest_manager.set_new_quest()  # ← 长期目标导向
+```
+
+**自驱动特点**：
+- ✅ 完整的自主循环（无限循环）
+- ✅ 技能库作为长期记忆
+- ✅ 自主设定新目标（持续探索）
+- ✅ 记忆驱动行动（基于已有技能）
+- ✅ **最接近 PRD 的"日拱一卒"模式**
+
+#### MemGPT：分层记忆驱动
+
+```python
+# MemGPT 的记忆驱动架构
+class MemGPTAgent:
+    def __init__(self):
+        self.memory_controller = MemoryController()
+        self.llm = LLM()
+
+    def on_user_message(self, message):
+        # 1. 内存控制器决定加载哪些记忆
+        relevant_memories = self.memory_controller.retrieve(
+            query=message,
+            budget=self.context_window_budget  # ← 智能管理
+        )
+
+        # 2. 构建上下文
+        context = self.construct_context(relevant_memories, message)
+
+        # 3. 生成响应
+        response = self.llm.generate(context)
+
+        # 4. 内存控制器决定存储哪些信息
+        self.memory_controller.store(
+            event=message,
+            response=response,
+            importance=self.evaluate_importance(message, response)
+        )
+
+        # 5. 如果上下文不足，触发中断加载
+        if self.memory_controller.needs_more_context():
+            self.pause_and_load_memories()
+```
+
+**自驱动特点**：
+- ✅⭐⭐⭐⭐ 最强的记忆驱动机制
+- ✅ 分层记忆架构（主内存 + 外存）
+- ✅ 智能内存控制器
+- ⚠️ **局限**：仍是对话驱动，不是自主循环
+
+### 5.4 PRD 需要的自驱动架构
+
+**PRD 描述的自驱动模式**：
+
+```python
+# PRD 要求的自驱动架构
+class ProactiveTrainingSystem:
+    def start(self):
+        # 定时触发 + 自主决策的混合模式
+        self.scheduler.schedule_daily(
+            time="09:00",
+            func=self.autonomous_cycle  # ← 自主循环
+        )
+
+    def autonomous_cycle(self):
+        # 1. 检索记忆（长期经验）
+        context = self.memory.retrieve_comprehensive_context(
+            user_goals=True,
+            history=True,
+            recent_events=True
+        )
+
+        # 2. 反思与评估（"思考接下来做什么"）
+        reflection = self.reflect_on_current_state(context)
+
+        # 3. 自主决策（生成 proposal）
+        proposals = self.generate_proposals(
+            reflection=reflection,
+            goals=self.get_long_term_goals(),  # ← 长期目标导向
+            history=context.history
+        )
+
+        # 4. 推送用户（主动推送）
+        self.notification.push(proposals)
+
+        # 5. 等待授权（HITL）
+        # 6. 执行并学习（记忆驱动）
+```
+
+**核心架构需求**：
+1. **定时自主循环** - 每日触发思考
+2. **记忆驱动决策** - 基于历史和经验
+3. **长期目标导向** - 持续优化培训体系
+4. **主动推送机制** - 不是被动等待
+5. **HITL 集成** - 需要人类授权
+
+### 5.5 架构组合策略
+
+**推荐方案：Voyager + MemGPT + Temporal**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│           PRD 自驱动架构设计                             │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  【自主循环引擎】参考 Voyager                            │
+│  - Temporal 持久化工作流                                 │
+│  - 定时触发 + 事件触发的混合模式                         │
+│  - 无限循环，长期运营                                    │
+│                                                         │
+│  【记忆驱动机制】参考 MemGPT                             │
+│  - 分层记忆系统（主内存 + 向量数据库）                   │
+│  - 内存控制器智能管理                                   │
+│  - 记忆检索影响决策                                     │
+│                                                         │
+│  【自主决策机制】参考 Voyager + AutoGPT                  │
+│  - 基于记忆和目标决定下一步                             │
+│  - LLM 推理生成 proposal                                │
+│  - 反思学习（Reflexion）                                │
+│                                                         │
+│  【长期目标导向】参考 Voyager                            │
+│  - 维护企业培训的长期目标                               │
+│  - 分解为每日提案                                       │
+│  - 持续评估进度                                         │
+│                                                         │
+│  【HITL 集成】自研                                       │
+│  - Proposal 推送界面                                    │
+│  - 授权确认机制                                         │
+│  - 反馈学习循环                                         │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 5.6 关键发现
 
 **现有框架的局限**：
-1. ❌ 大多没有"主动推送消息给用户"的能力
-2. ❌ 长期运行框架通常忽略 HITL（人类授权）
-3. ❌ 没有框架实现"定时评估 + 推送 proposal"的模式
+1. ❌ **Voyager** 最接近，但是游戏环境，无 HITL
+2. ❌ **AutoGPT** 有自主循环，但无主动推送，无长期运营
+3. ❌ **MemGPT** 有最强记忆系统，但是对话驱动，非自主循环
+4. ❌ **所有框架**都没有实现"定时触发 + 推送 proposal + HITL"的完整闭环
 
-**PRD 需要自行构建的部分**：
-- ✅ 推送系统（Web/Mobile/Email 通知）
-- ✅ 定时调度器（Cron/Temporal）
-- ✅ Proposal 展示与授权界面
-- ✅ 结合 MemGPT 的记忆机制
+**PRD 需要自行构建的核心**：
+- ✅ 推送系统（主动通知用户）
+- ✅ HITL 授权界面（提案展示与确认）
+- ✅ 定时调度器（Temporal/Celery Beat）
+- ✅ 结合 MemGPT 的记忆系统 + Voyager 的长期目标机制
 
 ---
 
