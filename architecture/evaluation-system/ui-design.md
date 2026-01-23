@@ -16,10 +16,6 @@ Top-level navigation:
 - Benchmark Studio
 - Evaluation Jobs
 - Gatekeeper
-- Integration Hub
-- Reports
-- Governance
-- Settings
 
 Entities:
 - Agent
@@ -116,33 +112,24 @@ Layout:
 - Score breakdown per run or job
 - Comparative charts
 
-### 5.7 Reports
-Purpose: shareable summaries.
-Layout:
-- Report templates
-- Generated reports list
-- Export: PDF/CSV
-
-### 5.8 Gatekeeper
+### 5.7 Gatekeeper
 Purpose: release readiness and compliance checks.
 Layout:
 - Policy list with must-pass rules
 - Risk and sensitive term checks
 - Approval workflow and audit trail
-
-### 5.9 Integration Hub
-Purpose: protocol and SDK guidance for integration.
-Layout:
-- JSON schema and metadata samples
-- SDKs, webhooks, and ingestion endpoints
-- Validation tools and sample traces
-
-### 5.10 Governance
-Purpose: audit, permissions, data retention.
-Layout:
-- Audit logs
-- Access policies
-- Retention settings
+ 
+### 5.8 Embedded Settings (per module)
+Purpose: keep configuration close to each workflow instead of a standalone menu.
+Placement:
+- Leaderboards: view presets, comparison defaults, export options
+- Benchmark Studio: simulator defaults, dataset retention, judge library
+- Evaluation Jobs: run presets, budget limits, notification rules
+- Gatekeeper: policy library, approval routing, audit retention
+Shared utilities:
+- Integration: schema samples, SDKs, webhooks, ingestion endpoints (linked from Evaluation Jobs and Benchmark Studio)
+- Reports: templates and exports (linked from Leaderboards and Evaluations)
+- Governance: audit logs, access policies (linked from Gatekeeper)
 
 ## 6. Visual Language (Initial Direction)
 - Typography: distinct display font for headings, readable serif for body
