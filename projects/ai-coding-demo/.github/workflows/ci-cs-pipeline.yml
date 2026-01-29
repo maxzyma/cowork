@@ -1,0 +1,414 @@
+name: CI/CS Pipeline (Continuous Integration & Continuous Specification)
+
+# 当规范、代码或测试变更时触发
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'specs/**'
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'specs/**'
+      - 'src/**'
+      - 'tests/**'
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # ====== 阶段 1: 规范验证 ======
+  spec-validation:
+    name: 规范验证
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          pip install pyyaml markdown
+
+      - name: 验证规范格式
+        run: |
+          echo "验证规范文档格式和完整性..."
+          python scripts/spec-validator.py validate specs/
+        continue-on-error: false
+
+      - name: 检查规范版本
+        run: |
+          echo "检查规范版本一致性..."
+          python scripts/spec-validator.py check-versions specs/
+
+      - name: 生成规范报告
+        run: |
+          python scripts/spec-validator.py report specs/ > spec-report.md
+
+      - name: 上传规范报告
+        uses: actions/upload-artifact@v3
+        with:
+          name: spec-report
+          path: spec-report.md
+
+  # ====== 阶段 2: 规范-代码同步检查 ======
+  spec-code-sync:
+    name: 规范-代码同步检查
+    runs-on: ubuntu-latest
+    needs: spec-validation
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 检查规范覆盖率
+        run: |
+          echo "检查所有代码是否有对应规范..."
+          python scripts/spec-validator.py check-coverage specs/ src/
+
+      - name: 检查规范和代码同步
+        run: |
+          echo "检查规范变更是否同步到代码..."
+          python scripts/spec-validator.py check-sync specs/ src/
+
+      - name: 验证 API 规范一致性
+        run: |
+          echo "验证 API 实现与规范一致..."
+          python scripts/api-validator.py validate specs/apis/ src/api/
+
+  # ====== 阶段 3: 代码质量检查 ======
+  code-quality:
+    name: 代码质量检查
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          pip install pylint flake8 black mypy
+
+      - name: 代码格式检查 (Black)
+        run: black --check src/ tests/
+
+      - name: 代码风格检查 (Flake8)
+        run: flake8 src/ tests/ --max-line-length=100
+
+      - name: 静态类型检查 (MyPy)
+        run: mypy src/ --ignore-missing-imports
+
+      - name: 代码质量分析 (Pylint)
+        run: pylint src/ --fail-under=8.0
+
+  # ====== 阶段 4: 安全扫描 ======
+  security-scan:
+    name: 安全扫描
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          pip install bandit safety
+
+      - name: 安全漏洞扫描 (Bandit)
+        run: bandit -r src/ -f json -o bandit-report.json
+
+      - name: 依赖安全检查 (Safety)
+        run: safety check --json
+
+      - name: 上传安全报告
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: bandit-report.json
+
+  # ====== 阶段 5: 单元测试 ======
+  unit-tests:
+    name: 单元测试
+    runs-on: ubuntu-latest
+    needs: [spec-code-sync, code-quality]
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-mock
+
+      - name: 运行单元测试
+        run: |
+          pytest tests/unit/ \
+            --cov=src/ \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-report=term \
+            --cov-fail-under=90 \
+            -v
+
+      - name: 上传覆盖率报告到 Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+      - name: 上传覆盖率报告
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: htmlcov/
+
+  # ====== 阶段 6: 集成测试 ======
+  integration-tests:
+    name: 集成测试
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 运行数据库迁移
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+        run: |
+          python scripts/migrate.py
+
+      - name: 运行集成测试
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+          REDIS_URL: redis://localhost:6379
+        run: |
+          pytest tests/integration/ \
+            --cov=src/ \
+            --cov-append \
+            -v
+
+  # ====== 阶段 7: E2E 测试 ======
+  e2e-tests:
+    name: 端到端测试
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 启动测试环境
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 10
+
+      - name: 运行 E2E 测试
+        run: |
+          pytest tests/e2e/ \
+            --base-url=http://localhost:8000 \
+            -v
+
+      - name: 停止测试环境
+        if: always()
+        run: docker-compose -f docker-compose.test.yml down
+
+  # ====== 阶段 8: 性能测试 ======
+  performance-tests:
+    name: 性能测试
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置环境
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 10
+
+      - name: 运行性能测试
+        run: |
+          docker run --network=host \
+            -v $(pwd)/tests/performance:/scripts \
+            loadimpact/k6:latest \
+            run /scripts/load-test.js
+
+      - name: 上传性能报告
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-report
+          path: performance-report.html
+
+  # ====== 阶段 9: 构建 Docker 镜像 ======
+  build-docker:
+    name: 构建 Docker 镜像
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: github.event_name == 'push'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: 登录 Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 构建并推送
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            myorg/ai-coding-demo:${{ github.sha }}
+            myorg/ai-coding-demo:latest
+          cache-from: type=registry,ref=myorg/ai-coding-demo:latest
+          cache-to: type=inline
+
+  # ====== 阶段 10: 部署到测试环境 ======
+  deploy-staging:
+    name: 部署到测试环境
+    runs-on: ubuntu-latest
+    needs: build-docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+      url: https://staging.example.com
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 部署到 Staging
+        run: |
+          echo "部署到测试环境..."
+          # 实际部署命令（Kubernetes, AWS, etc.）
+
+      - name: 健康检查
+        run: |
+          curl -f https://staging.example.com/health || exit 1
+
+      - name: 运行冒烟测试
+        run: |
+          pytest tests/smoke/ --base-url=https://staging.example.com
+
+  # ====== 阶段 11: 部署到生产环境 ======
+  deploy-production:
+    name: 部署到生产环境
+    runs-on: ubuntu-latest
+    needs: build-docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://api.example.com
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 部署到 Production
+        run: |
+          echo "部署到生产环境..."
+          # 实际部署命令
+
+      - name: 健康检查
+        run: |
+          curl -f https://api.example.com/health || exit 1
+
+      - name: 发送部署通知
+        run: |
+          echo "发送 Slack 通知..."
+
+  # ====== 通知和报告 ======
+  notify:
+    name: 发送通知
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: always()
+    steps:
+      - name: 检查状态
+        run: |
+          echo "Pipeline Status: ${{ job.status }}"
+
+      - name: 发送 Slack 通知
+        if: failure()
+        run: |
+          echo "发送失败通知到 Slack..."
+          # curl -X POST -H 'Content-type: application/json' \
+          #   --data '{"text":"CI/CS Pipeline Failed!"}' \
+          #   ${{ secrets.SLACK_WEBHOOK_URL }}
